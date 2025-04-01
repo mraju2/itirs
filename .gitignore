@@ -1,0 +1,29 @@
+# Root .gitignore
+
+# Ignore node_modules and build output in ui/
+ui/node_modules/
+ui/.next/
+ui/out/
+
+# Ignore environment files in ui/
+ui/.env
+ui/.env.*
+
+
+# Ignore .NET build outputs in backend/
+backend/SkillConnect/bin/
+backend/SkillConnect/obj/
+backend/.vs/
+
+# Ignore environment files in backend/
+backend/SkillConnect/appsettings.*.json
+backend/SkillConnect/appsettings.json
+backend/SkillConnect/*.user
+backend/SkillConnect/*.suo
+
+# General
+*.log
+*.tmp
+*.swp
+.DS_Store
+Thumbs.db
