@@ -6,7 +6,8 @@ namespace SkillConnect.Models
 {
     public class Company
     {
-        public int Id { get; set; }
+        [Key]
+        public Guid Id { get; set; } = Guid.NewGuid(); // Auto-generate on object creation
 
         [Required]
         public string Name { get; set; }
@@ -21,8 +22,6 @@ namespace SkillConnect.Models
         public string ContactPhone { get; set; }
 
         public string WebsiteUrl { get; set; }
-        public string LogoUrl { get; set; }
-
         // Relationships
         public List<JobPost> JobPosts { get; set; } = new();
     }

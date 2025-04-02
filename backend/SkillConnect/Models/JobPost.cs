@@ -36,7 +36,7 @@ namespace SkillConnect.Models
         public long CreatedAt { get; set; }
 
         // Relationships
-        public int CompanyId { get; set; }
+        public Guid CompanyId { get; set; }
         public Company Company { get; set; }
 
         public Guid RecruiterId { get; set; } // Assuming recruiter is a User

@@ -37,7 +37,7 @@ namespace SkillConnect.Controllers
         }
 
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> Update(int id, [FromBody] CompanyDto dto)
+        public async Task<IActionResult> Update(string id, [FromBody] CompanyDto dto)
         {
             if (id != dto.Id)
                 return BadRequest("Company ID mismatch");

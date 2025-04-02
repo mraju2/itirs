@@ -29,7 +29,7 @@ namespace SkillConnect.Data
             modelBuilder.Entity<JobPost>()
                 .HasOne(j => j.Company)
                 .WithMany(c => c.JobPosts)
-                .HasForeignKey(j => j.CompanyId);
+                .HasForeignKey(j => j.Id);
 
             modelBuilder.Entity<JobPost>()
                 .HasMany(j => j.Applications)

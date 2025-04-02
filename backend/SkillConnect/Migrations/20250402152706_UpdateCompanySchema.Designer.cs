@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SkillConnect.Data;
 
@@ -11,9 +12,11 @@ using SkillConnect.Data;
 namespace SkillConnect.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250402152706_UpdateCompanySchema")]
+    partial class UpdateCompanySchema
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -24,9 +27,11 @@ namespace SkillConnect.Migrations
 
             modelBuilder.Entity("SkillConnect.Models.Company", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Address")
                         .IsRequired()
@@ -45,6 +50,10 @@ namespace SkillConnect.Migrations
                         .HasColumnType("longtext");
 
                     b.Property<string>("Country")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("LogoUrl")
                         .IsRequired()
                         .HasColumnType("longtext");
 
@@ -109,6 +118,7 @@ namespace SkillConnect.Migrations
             modelBuilder.Entity("SkillConnect.Models.JobPost", b =>
                 {
                     b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
                     b.Property<string>("AccommodationDetails")
@@ -118,8 +128,8 @@ namespace SkillConnect.Migrations
                     b.Property<long>("ApplicationDeadline")
                         .HasColumnType("bigint");
 
-                    b.Property<Guid>("CompanyId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("int");
 
                     b.Property<long>("CreatedAt")
                         .HasColumnType("bigint");
@@ -171,6 +181,8 @@ namespace SkillConnect.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CompanyId");
 
                     b.HasIndex("RecruiterId");
 
@@ -293,7 +305,7 @@ namespace SkillConnect.Migrations
                 {
                     b.HasOne("SkillConnect.Models.Company", "Company")
                         .WithMany("JobPosts")
-                        .HasForeignKey("Id")
+                        .HasForeignKey("CompanyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
