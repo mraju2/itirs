@@ -12,7 +12,7 @@ export const companyService = {
    * Fetch all companies
    */
   getAllCompanies: async (): Promise<CompanyResponse[]> => {
-    return await fetchService({ method: "GET", endpoint: "/api/companies" });
+    return await fetchService({ method: "GET", endpoint: "/Companies" });
   },
 
   /**
@@ -30,7 +30,7 @@ export const companyService = {
   createCompany: async <T = CompanyResponse>(data: Company): Promise<T> => {
     return await fetchService<T>({
       method: "POST",
-      endpoint: "/api/companies",
+      endpoint: "/Companies",
       body: JSON.parse(JSON.stringify(data)),
       contentType: "application/json",
     });

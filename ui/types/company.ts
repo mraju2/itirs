@@ -5,7 +5,6 @@ export interface Company {
     city: string;
     state: string;
     pincode: string;
-    country: string;
     contactEmail: string;
     contactPhone: string;
     websiteUrl?: string;
