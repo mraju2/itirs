@@ -8,6 +8,8 @@ import {
   TableCell,
 } from "./table";
 import { Company } from "../types/company";
+import { useRouter } from "next/navigation";
+
 
 interface CompaniesTableProps {
   companies: Company[];
@@ -22,6 +24,8 @@ export const CompaniesTable = ({
   sortField,
   sortDirection,
 }: CompaniesTableProps) => {
+  const router = useRouter();
+
   const SortIcon = ({ field }: { field: keyof Company }) => {
     if (sortField !== field) return <span className="ml-1">↕</span>;
     return <span className="ml-1">{sortDirection === "asc" ? "↑" : "↓"}</span>;
@@ -49,12 +53,13 @@ export const CompaniesTable = ({
     <Table>
       <TableHeader>
         <TableRow>
+          <SortableHeader field="id">ID</SortableHeader>
           <SortableHeader field="name">Company Name</SortableHeader>
           <SortableHeader field="contactEmail">Email</SortableHeader>
           <SortableHeader field="contactPhone">Phone</SortableHeader>
           <SortableHeader field="city">City</SortableHeader>
           <SortableHeader field="state">State</SortableHeader>
-          <SortableHeader field="country">Country</SortableHeader>
+          <SortableHeader field="district">District</SortableHeader>
           <TableHead>Actions</TableHead>
         </TableRow>
       </TableHeader>
@@ -66,16 +71,22 @@ export const CompaniesTable = ({
         ) : (
           companies.map((company) => (
             <TableRow key={company.contactPhone}>
+              <TableCell>{company.id}</TableCell>
               <TableCell>{company.name}</TableCell>
               <TableCell>{company.contactEmail}</TableCell>
               <TableCell>{company.contactPhone}</TableCell>
               <TableCell>{company.city}</TableCell>
               <TableCell>{company.state}</TableCell>
-              <TableCell>{company.country}</TableCell>
+              <TableCell>{company.district}</TableCell>
               <TableCell>
                 <div className="flex gap-2">
-                  <button className="text-blue-600 hover:underline">Edit</button>
-                  <button className="text-red-600 hover:underline">Delete</button>
+                  <button className="text-blue-600 hover:underline"                     onClick={() => router.push(`/admin/companies/edit?id=${company.id}`)}
+                  >
+                    Edit
+                  </button>
+                  <button className="text-red-600 hover:underline">
+                    Delete
+                  </button>
                 </div>
               </TableCell>
             </TableRow>

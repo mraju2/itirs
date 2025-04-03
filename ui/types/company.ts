@@ -9,5 +9,6 @@ export interface Company {
     contactPhone: string;
     websiteUrl?: string;
     logoUrl?: string;
+    district: string;
   }
   
