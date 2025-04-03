@@ -18,6 +18,9 @@ namespace SkillConnect.Models
         public string Pincode { get; set; }
         public string Country { get; set; }
 
+        public string District { get; set; }
+
+
         public string ContactEmail { get; set; }
         public string ContactPhone { get; set; }
 

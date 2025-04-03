@@ -10,5 +10,15 @@ namespace SkillConnect.Repositories.Interfaces
         Task AddAsync(Company company);
         Task UpdateAsync(Company company);
         Task DeleteAsync(string id);
+        Task<bool> ExistsByEmailOrPhoneAsync(string email, string contactPhone);
+
+
+        Task<PaginatedResult<Company>> GetPaginatedAsync(
+            int pageNumber,
+            int pageSize,
+            string? searchTerm,
+            Dictionary<string, string>? filters,
+            string? sortBy,
+            bool isDescending);
     }
 }

@@ -45,6 +45,14 @@ namespace SkillConnect.Data
                 .HasOne(j => j.Recruiter)
                 .WithMany(u => u.PostedJobs)
                 .HasForeignKey(j => j.RecruiterId);
+
+            modelBuilder.Entity<Company>()
+    .HasIndex(c => c.ContactEmail)
+    .IsUnique();
+
+            modelBuilder.Entity<Company>()
+                .HasIndex(c => c.ContactPhone)
+                .IsUnique();
         }
     }
 }
