@@ -8,23 +8,9 @@ import { companyService } from "../../../services/company-service";
 import { Company } from "../../../types/company";
 import { PlusIcon } from "../../../icons/plus-icon";
 import { SmartSearchInput } from "../../../components/smart-search";
+import { parseAdvancedSearch } from "@/utils/util";
 
 const COMPANIES_PER_PAGE = 5;
-
-const parseAdvancedSearch = (search: string): Record<string, string> => {
-  const result: Record<string, string> = {};
-  const parts = search
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
-  for (const part of parts) {
-    const [key, ...rest] = part.split(":");
-    if (key && rest.length > 0) {
-      result[key.trim().toLowerCase()] = rest.join(":").trim().toLowerCase();
-    }
-  }
-  return result;
-};
 
 const CompaniesPage = () => {
   const [companies, setCompanies] = useState<Company[]>([]);
@@ -42,7 +28,7 @@ const CompaniesPage = () => {
   useEffect(() => {
     const parsedFilters = parseAdvancedSearch(searchTerm);
     setFilters(parsedFilters);
-    setCurrentPage(1); // Reset to first page when filters change
+    setCurrentPage(1);
   }, [searchTerm]);
 
   useEffect(() => {
@@ -52,7 +38,7 @@ const CompaniesPage = () => {
         const res = await companyService.getPaginatedCompanies(
           currentPage,
           COMPANIES_PER_PAGE,
-          searchTerm,
+          "",
           sortField,
           sortDirection === "desc",
           filters
@@ -65,18 +51,19 @@ const CompaniesPage = () => {
           status?: number;
           body?: { title?: string; message?: string };
         };
-      
+
         const title = typedError.body?.title || "Error";
         const message =
-          typedError.body?.message || typedError.message || "Something went wrong";
-      
+          typedError.body?.message ||
+          typedError.message ||
+          "Something went wrong";
+
         if (process.env.NODE_ENV === "development") {
           console.error(`[API Error] ${title}: ${message}`);
         }
-      
+
         setError(message);
-      }
-       finally {
+      } finally {
         setLoading(false);
       }
     };
@@ -102,49 +89,54 @@ const CompaniesPage = () => {
           items={[{ label: "Admin", href: "/admin" }, { label: "Companies" }]}
         />
 
-        <div className="bg-white rounded-lg shadow p-3 mb-3">
-          <div className="flex flex-wrap gap-2 items-center">
-            <SmartSearchInput
-              value={searchTerm}
-              onChange={(val) => setSearchTerm(val)}
-              keys={[
-                "name",
-                "email",
-                "city",
-                "state",
-                "pincode",
-                "country",
-                "contactPhone",
-              ]}
-              examples={[
-                "name:tata",
-                "city:mumbai",
-                "email:info@tata.com",
-                "pincode:400001",
-              ]}
-            />
+<div className="bg-white rounded-lg shadow p-3 mb-3">
+  <div className="flex flex-wrap gap-2 items-center">
+    <div className="flex-1 min-w-[300px]">
+      <SmartSearchInput
+        value={searchTerm}
+        onChange={(val) => setSearchTerm(val)}
+        keys={[
+          "name",
+          "email",
+          "city",
+          "pincode",
+          "country",
+          "contactPhone",
+          "district",
+        ]}
+        examples={[
+          "name:tata",
+          "city:mumbai",
+          "email:info@tata.com",
+          "pincode:400001",
+        ]}
+      />
+    </div>
 
-            <button
-              onClick={() => {
-                setSearchTerm("");
-                setSortField("");
-                setSortDirection("asc");
-                setCurrentPage(1);
-              }}
-              className="bg-gradient-to-r from-indigo-600 to-blue-500 hover:from-indigo-700 hover:to-blue-600 text-white text-sm px-4 py-2 rounded-md"
-            >
-              Reset
-            </button>
+    <button
+      type="button"
+      onClick={() => {
+        setSearchTerm("");
+        setSortField("");
+        setSortDirection("asc");
+        setCurrentPage(1);
+      }}
+      className="bg-gradient-to-r from-indigo-600 to-blue-500 hover:from-indigo-700 hover:to-blue-600 text-white text-sm px-4 py-2 rounded-md"
+    >
+      Reset
+    </button>
 
-            <button
-              onClick={() => router.push("/admin/companies/new")}
-              className="flex items-center gap-1 bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-2 rounded-md"
-            >
-              <PlusIcon />
-              Add Company
-            </button>
-          </div>
-        </div>
+    <button
+      type="button"
+      onClick={() => router.push("/admin/companies/new")}
+      className="flex items-center gap-1 bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-2 rounded-md"
+    >
+      <PlusIcon />
+      Add Company
+    </button>
+  </div>
+</div>
+
 
         <div className="bg-white rounded-lg shadow overflow-hidden">
           <div className="p-4">

@@ -10,7 +10,6 @@ import {
 import { Company } from "../types/company";
 import { useRouter } from "next/navigation";
 
-
 interface CompaniesTableProps {
   companies: Company[];
   onSort: (field: keyof Company) => void;
@@ -54,7 +53,7 @@ export const CompaniesTable = ({
       <TableHeader>
         <TableRow>
           <SortableHeader field="id">ID</SortableHeader>
-          <SortableHeader field="name">Company Name</SortableHeader>
+          <SortableHeader field="name">Name</SortableHeader>
           <SortableHeader field="contactEmail">Email</SortableHeader>
           <SortableHeader field="contactPhone">Phone</SortableHeader>
           <SortableHeader field="city">City</SortableHeader>
@@ -66,21 +65,29 @@ export const CompaniesTable = ({
       <TableBody>
         {companies.length === 0 ? (
           <TableRow>
-            <TableCell colSpan={7}>No companies found.</TableCell>
+            <TableCell colSpan={8}>No companies found.</TableCell>
           </TableRow>
         ) : (
           companies.map((company) => (
             <TableRow key={company.contactPhone}>
               <TableCell>{company.id}</TableCell>
-              <TableCell>{company.name}</TableCell>
-              <TableCell>{company.contactEmail}</TableCell>
-              <TableCell>{company.contactPhone}</TableCell>
+              <TableCell title={company.name}>{company.name}</TableCell>
+              <TableCell title={company.contactEmail}>
+                {company.contactEmail}
+              </TableCell>
+              <TableCell title={company.contactPhone}>
+                {company.contactPhone}
+              </TableCell>
               <TableCell>{company.city}</TableCell>
               <TableCell>{company.state}</TableCell>
               <TableCell>{company.district}</TableCell>
               <TableCell>
                 <div className="flex gap-2">
-                  <button className="text-blue-600 hover:underline"                     onClick={() => router.push(`/admin/companies/edit?id=${company.id}`)}
+                  <button
+                    className="text-blue-600 hover:underline"
+                    onClick={() =>
+                      router.push(`/admin/companies/edit/${company.id}`)
+                    }
                   >
                     Edit
                   </button>
