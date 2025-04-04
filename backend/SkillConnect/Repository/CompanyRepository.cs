@@ -62,50 +62,100 @@ namespace SkillConnect.Repositories
                 c.ContactEmail == email || c.ContactPhone == contactPhone);
         }
 
-
-        public async Task<PaginatedResult<Company>> GetPaginatedAsync(int pageNumber, int pageSize, string? searchTerm, Dictionary<string, string>? filters, string? sortBy, bool isDescending)
+        public async Task<PaginatedResult<Company>> GetPaginatedAsync(
+    int pageNumber,
+    int pageSize,
+    string? searchTerm,
+    Dictionary<string, string>? filters,
+    string? sortBy,
+    bool isDescending)
         {
-            var query = _context.Companies.AsQueryable();    // Apply search    if (!string.IsNullOrEmpty(searchTerm))    {        query = query.Where(c => c.Name.Contains(searchTerm) || c.Description.Contains(searchTerm));    }
+            var query = _context.Companies.AsQueryable();
+
+            // SearchTerm on Name field
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                Console.WriteLine($"🔍 Applying basic search for: {searchTerm}");
+                query = query.Where(c => c.Name.Contains(searchTerm));
+            }
+
+            // Get lowercase -> PascalCase property mapping
+            var propertyMap = typeof(Company)
+                .GetProperties()
+                .ToDictionary(p => p.Name.ToLower(), p => p.Name);
 
             // Apply filters
             if (filters != null)
             {
-                Console.WriteLine("Filters received:");
+                Console.WriteLine("🔧 Filters received:");
                 foreach (var kv in filters)
-                {
-                    Console.WriteLine($"Key: {kv.Key}, Value: {kv.Value}");
-                }
-
-                var propertyMap = typeof(Company)
-                    .GetProperties()
-                    .ToDictionary(p => p.Name.ToLower(), p => p.Name); // maps "name" → "Name"
+                    Console.WriteLine($"    🔹 {kv.Key} = {kv.Value}");
 
                 foreach (var filter in filters)
                 {
                     var key = filter.Key.ToLower();
                     var value = filter.Value;
 
-                    if (propertyMap.TryGetValue(key, out var actualProperty))
+                    if (!string.IsNullOrWhiteSpace(value) && propertyMap.TryGetValue(key, out var actualProp))
                     {
-                        query = query.Where(c => EF.Property<string>(c, actualProperty) == value);
+                        try
+                        {
+                            Console.WriteLine($"🔄 Applying filter on '{actualProp}' with value '{value}'");
+
+                            if (value.StartsWith("%") && value.EndsWith("%"))
+                            {
+                                Console.WriteLine($"🔄 Applying filter startwith end with '{actualProp}' with value '%{value}'");
+
+                                var term = value.Trim('%');
+                                query = query.Where(c => EF.Property<string>(c, actualProp) != null &&
+                                    EF.Functions.Like(EF.Property<string>(c, actualProp), $"%{term}%"));
+                            }
+                            else if (value.StartsWith("%"))
+                            {
+                                Console.WriteLine($"🔄 Applying filter startwith '{actualProp}' with value '%{value}'");
+                                var term = value.TrimStart('%');
+                                query = query.Where(c => EF.Property<string>(c, actualProp) != null &&
+                                    EF.Functions.Like(EF.Property<string>(c, actualProp), $"{term}%"));
+                            }
+                            else if (value.EndsWith("%"))
+                            {
+                                Console.WriteLine($"🔄 Applying filter endwith '{actualProp}' with value '%{value}'");
+
+                                var term = value.TrimEnd('%');
+                                query = query.Where(c => EF.Property<string>(c, actualProp) != null &&
+                                    EF.Functions.Like(EF.Property<string>(c, actualProp), $"%{term}"));
+                            }
+                            else
+                            {
+                                Console.WriteLine($"🔄 Applying no filter '{actualProp}' with value '%{value}'");
+
+                                query = query.Where(c => EF.Functions.Like(EF.Property<string>(c, actualProp), $"{value}%"));
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"❌ Error applying filter on '{actualProp}': {ex.Message}");
+                        }
                     }
                     else
                     {
-                        Console.WriteLine($"❌ Skipping invalid filter: {filter.Key}");
+                        Console.WriteLine($"❌ Skipping unknown or null filter: {filter.Key}");
                     }
                 }
             }
 
-
             // Apply sorting
-            if (!string.IsNullOrEmpty(sortBy))
+            if (!string.IsNullOrEmpty(sortBy) && propertyMap.TryGetValue(sortBy.ToLower(), out var sortProperty))
             {
+                Console.WriteLine($"📊 Sorting by: {sortProperty} {(isDescending ? "DESC" : "ASC")}");
                 query = isDescending
-                    ? query.OrderByDescending(e => EF.Property<object>(e, sortBy))
-                    : query.OrderBy(e => EF.Property<object>(e, sortBy));
+                    ? query.OrderByDescending(c => EF.Property<object>(c, sortProperty))
+                    : query.OrderBy(c => EF.Property<object>(c, sortProperty));
             }
 
-            // Apply pagination
+            // Log final SQL (optional for EF Core)
+            Console.WriteLine($"📥 Final query to execute: {query.ToQueryString()}");
+
             var totalCount = await query.CountAsync();
             var items = await query
                 .Skip((pageNumber - 1) * pageSize)
@@ -118,20 +168,6 @@ namespace SkillConnect.Repositories
                 TotalCount = totalCount
             };
         }
-
-        // Maps user keys → real C# property names
-        private static readonly Dictionary<string, string> SearchablePropertyMap =
-            new(StringComparer.OrdinalIgnoreCase)
-            {
-        { "name", "Name" },
-        { "email", "ContactEmail" },
-        { "city", "City" },
-        { "state", "State" },
-        { "pincode", "Pincode" },
-        { "country", "Country" },
-        { "contactphone", "ContactPhone" },
-        { "contact phone", "ContactPhone" } // support space for quoted key
-            };
 
     }
 }
