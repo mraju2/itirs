@@ -169,5 +169,19 @@ namespace SkillConnect.Repositories
             };
         }
 
+        public async Task<List<CompanySummaryDto>> SearchAsync(string query)
+        {
+            return await _context.Companies
+                .Where(c => c.Name.ToLower().Contains(query.ToLower()))
+                .OrderBy(c => c.Name)
+                .Select(c => new CompanySummaryDto
+                {
+                    Id = c.Id.ToString(),
+                    Name = c.Name
+                })
+                .Take(20)
+                .ToListAsync();
+        }
+
     }
 }

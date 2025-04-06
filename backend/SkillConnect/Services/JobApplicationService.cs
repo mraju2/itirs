@@ -43,7 +43,7 @@ namespace SkillConnect.Services
         public async Task ApplyAsync(JobApplicationDto dto)
         {
             var entity = _mapper.Map<JobApplication>(dto);
-            entity.AppliedAt = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds();
+            entity.AppliedAtUnix = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds();
             await _repository.AddAsync(entity);
         }
 
@@ -51,16 +51,6 @@ namespace SkillConnect.Services
         {
             var entity = _mapper.Map<JobApplication>(dto);
             await _repository.UpdateAsync(entity);
-        }
-
-        public async Task WithdrawAsync(string id)
-        {
-            var app = await _repository.GetByIdAsync(id);
-            if (app != null)
-            {
-                app.IsWithdrawn = true;
-                await _repository.UpdateAsync(app);
-            }
         }
     }
 }

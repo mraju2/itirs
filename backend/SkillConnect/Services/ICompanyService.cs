@@ -15,5 +15,7 @@ namespace SkillConnect.Services.Interfaces
                    Dictionary<string, string>? filters,
                    string? sortBy,
                    bool isDescending);
+        Task<List<CompanySummaryDto>> SearchAsync(string query);
+
     }
 }

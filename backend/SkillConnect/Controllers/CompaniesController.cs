@@ -47,6 +47,21 @@ namespace SkillConnect.Controllers
             }
         }
 
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchCompanies([FromQuery] string query)
+        {
+            try
+            {
+                var results = await _companyService.SearchAsync(query); // returns List<CompanySummaryDto>
+                return Ok(results);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { title = "Internal Server Error", message = "Failed to search companies." });
+            }
+        }
+
+
         [HttpPost]
         public async Task<IActionResult> CreateAsync([FromBody] CompanyDto dto)
         {

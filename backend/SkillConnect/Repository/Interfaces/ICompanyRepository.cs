@@ -11,6 +11,12 @@ namespace SkillConnect.Repositories.Interfaces
         Task UpdateAsync(Company company);
         Task DeleteAsync(string id);
         Task<bool> ExistsByEmailOrPhoneAsync(string email, string contactPhone);
+        /// <summary>
+        /// Searches companies by name (case-insensitive) and returns limited results for dropdowns.
+        /// </summary>
+        /// <param name="query">The partial or full name of the company to search.</param>
+        /// <returns>List of CompanySummaryDto with matching companies.</returns>
+        Task<List<CompanySummaryDto>> SearchAsync(string query);
 
 
         Task<PaginatedResult<Company>> GetPaginatedAsync(

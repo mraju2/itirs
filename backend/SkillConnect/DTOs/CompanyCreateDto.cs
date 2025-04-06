@@ -2,13 +2,10 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace SkillConnect.Models
+namespace SkillConnect.Dtos
 {
-    public class Company
+    public class CompanyCreateDto
     {
-        [Key]
-        public Guid Id { get; set; } = Guid.NewGuid();
-
         [Required]
         public string Name { get; set; } = null!;
 
@@ -36,16 +33,6 @@ namespace SkillConnect.Models
         [Required]
         public string WebsiteUrl { get; set; } = null!;
 
-        [Required]
         public string Country { get; set; } = "India";
-
-        public long CreatedAtUnix { get; set; } = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-
-        // Navigation
-        public State State { get; set; } = null!;
-        public District District { get; set; } = null!;
-        public List<JobPost> JobPosts { get; set; } = new();
     }
-
 }
-

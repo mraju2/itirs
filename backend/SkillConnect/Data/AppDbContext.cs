@@ -23,36 +23,72 @@ namespace SkillConnect.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);
-
-            // Optional: Fluent API configurations
-            modelBuilder.Entity<JobPost>()
-                .HasOne(j => j.Company)
-                .WithMany(c => c.JobPosts)
-                .HasForeignKey(j => j.Id);
-
-            modelBuilder.Entity<JobPost>()
-                .HasMany(j => j.Applications)
-                .WithOne(a => a.JobPost)
-                .HasForeignKey(a => a.JobPostId);
-
-            modelBuilder.Entity<JobApplication>()
-                .HasOne(a => a.Candidate)
-                .WithMany(u => u.Applications)
-                .HasForeignKey(a => a.CandidateId);
-
-            modelBuilder.Entity<JobPost>()
-                .HasOne(j => j.Recruiter)
-                .WithMany(u => u.PostedJobs)
-                .HasForeignKey(j => j.RecruiterId);
-
+            // Unique constraints
             modelBuilder.Entity<Company>()
-    .HasIndex(c => c.ContactEmail)
-    .IsUnique();
+                .HasIndex(c => c.ContactEmail)
+                .IsUnique();
 
             modelBuilder.Entity<Company>()
                 .HasIndex(c => c.ContactPhone)
                 .IsUnique();
+
+            // Company → State & District
+            modelBuilder.Entity<Company>()
+                .HasOne(c => c.State)
+                .WithMany(s => s.Companies)
+                .HasForeignKey(c => c.StateId);
+
+            modelBuilder.Entity<Company>()
+                .HasOne(c => c.District)
+                .WithMany(d => d.Companies)
+                .HasForeignKey(c => c.DistrictId);
+
+            // District → State
+            modelBuilder.Entity<District>()
+                .HasOne(d => d.State)
+                .WithMany(s => s.Districts)
+                .HasForeignKey(d => d.StateId);
+
+            // JobPost → Company
+            modelBuilder.Entity<JobPost>()
+                .HasOne(j => j.Company)
+                .WithMany(c => c.JobPosts)
+                .HasForeignKey(j => j.CompanyId);
+
+            /// JobPost → JobApplication (One-to-Many)
+            modelBuilder.Entity<JobApplication>()
+                .HasOne(a => a.JobPost)
+                .WithMany(j => j.Applications)
+                .HasForeignKey(a => a.JobPostId);
+
+            // JobApplication → User (Many-to-One)
+            modelBuilder.Entity<JobApplication>()
+                .HasOne(a => a.User)
+                .WithMany(u => u.JobApplications)
+                .HasForeignKey(a => a.UserId);
+
+            // Enforce 1 application per user per job
+            modelBuilder.Entity<JobApplication>()
+                .HasIndex(a => new { a.UserId, a.JobPostId })
+                .IsUnique();
+            // JobPost ↔ Trade (Many-to-Many)
+            modelBuilder.Entity<JobPostTrade>()
+                .HasKey(jt => new { jt.JobPostId, jt.TradeId });
+
+            modelBuilder.Entity<JobPostTrade>()
+                .HasOne(jt => jt.JobPost)
+                .WithMany(j => j.JobPostTrades)
+                .HasForeignKey(jt => jt.JobPostId);
+
+            modelBuilder.Entity<JobPostTrade>()
+                .HasOne(jt => jt.Trade)
+                .WithMany(t => t.JobPostTrades)
+                .HasForeignKey(jt => jt.TradeId);
+
+            // Optional: Seed states, districts, trades
+            modelBuilder.Seed();
         }
+
+
     }
 }

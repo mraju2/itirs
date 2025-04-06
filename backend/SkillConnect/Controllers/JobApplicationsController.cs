@@ -45,12 +45,5 @@ namespace SkillConnect.Controllers
             await _applicationService.UpdateAsync(dto);
             return NoContent();
         }
-
-        [HttpPatch("{id}/withdraw")]
-        public async Task<IActionResult> Withdraw(string id)
-        {
-            await _applicationService.WithdrawAsync(id);
-            return Ok(new { message = "Application withdrawn." });
-        }
     }
 }

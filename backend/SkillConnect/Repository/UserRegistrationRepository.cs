@@ -87,5 +87,71 @@ namespace SkillConnect.Repositories
         {
             return await _context.Users.Where(u => u.WorkLocation == location).ToListAsync();
         }
+
+        public async Task<PaginatedResult<UserModel>> GetPaginatedAsync(
+            int pageNumber,
+            int pageSize,
+            string? searchTerm,
+            Dictionary<string, string>? filters,
+            string? sortBy,
+            bool isDescending)
+        {
+            // Start with the base query
+            var query = _context.Users.AsQueryable();
+
+            // Apply search
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                query = query.Where(u =>
+                    u.FirstName.Contains(searchTerm) ||
+                    u.LastName.Contains(searchTerm) ||
+                    u.Email.Contains(searchTerm) ||
+                    u.PhoneNumber.Contains(searchTerm));
+            }
+
+            // Apply filters
+            if (filters != null)
+            {
+                foreach (var filter in filters)
+                {
+                    if (filter.Key == "Trade" && !string.IsNullOrEmpty(filter.Value))
+                    {
+                        query = query.Where(u => u.Trade == filter.Value);
+                    }
+                    if (filter.Key == "District" && !string.IsNullOrEmpty(filter.Value))
+                    {
+                        query = query.Where(u => u.District == filter.Value);
+                    }
+                    if (filter.Key == "WorkLocation" && !string.IsNullOrEmpty(filter.Value))
+                    {
+                        query = query.Where(u => u.WorkLocation == filter.Value);
+                    }
+                }
+            }
+
+            // Apply sorting
+            if (!string.IsNullOrEmpty(sortBy))
+            {
+                query = isDescending
+                    ? query.OrderByDescending(e => EF.Property<object>(e, sortBy))
+                    : query.OrderBy(e => EF.Property<object>(e, sortBy));
+            }
+
+            // Get total count before pagination
+            var totalCount = await query.CountAsync();
+
+            // Apply pagination
+            var items = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            // Return paginated result
+            return new PaginatedResult<UserModel>
+            {
+                Items = items,
+                TotalCount = totalCount
+            };
+        }
     }
 }

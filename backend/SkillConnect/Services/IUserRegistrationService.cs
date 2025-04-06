@@ -18,5 +18,14 @@ namespace SkillConnect.Services.Interfaces
         Task<IEnumerable<UserDTO>> GetRegistrationsByTradeAsync(string trade);
         Task<IEnumerable<UserDTO>> GetRegistrationsByDistrictAsync(string district);
         Task<IEnumerable<UserDTO>> GetRegistrationsByWorkLocationAsync(string location);
+
+        // New method for paginated, sorted, filtered, and searchable user registrations
+        Task<PaginatedResult<UserDTO>> GetPaginatedAsync(
+            int pageNumber,
+            int pageSize,
+            string? searchTerm,
+            Dictionary<string, string>? filters,
+            string? sortBy,
+            bool isDescending);
     }
 }

@@ -84,5 +84,10 @@ namespace SkillConnect.Services
                 TotalCount = paginatedCompanies.TotalCount
             };
         }
+
+        public async Task<List<CompanySummaryDto>> SearchAsync(string query)
+        {
+            return await _repository.SearchAsync(query);
+        }
     }
 }
