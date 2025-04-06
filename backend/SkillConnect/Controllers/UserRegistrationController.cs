@@ -130,4 +130,32 @@ public class UserController : ControllerBase
         var users = await _registrationService.GetRegistrationsByWorkLocationAsync(location);
         return Ok(users);
     }
+
+    // GET: api/users/paginated
+    [HttpGet("paginated")]
+    public async Task<IActionResult> GetPaginatedAsync(
+        [FromQuery] int pageNumber,
+        [FromQuery] int pageSize,
+        [FromQuery] string? searchTerm,
+        [FromQuery] Dictionary<string, string>? filters,
+        [FromQuery] string? sortBy,
+        [FromQuery] bool isDescending)
+    {
+        try
+        {
+            var result = await _registrationService.GetPaginatedAsync(
+                pageNumber,
+                pageSize,
+                searchTerm,
+                filters,
+                sortBy,
+                isDescending
+            );
+            return Ok(result);
+        }
+        catch (System.Exception ex)
+        {
+            return StatusCode(500, new { title = "Internal Server Error", message = ex.Message });
+        }
+    }
 }

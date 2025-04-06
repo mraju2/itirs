@@ -73,6 +73,6 @@ namespace SkillConnect.Models
         public List<JobPost> PostedJobs { get; set; } = new();
 
         // If the user is a candidate applying to jobs
-        public List<JobApplication> Applications { get; set; } = new();
+        public List<JobApplication> JobApplications { get; set; } = new();
     }
 }

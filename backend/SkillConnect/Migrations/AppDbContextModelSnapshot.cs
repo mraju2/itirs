@@ -24,11 +24,9 @@ namespace SkillConnect.Migrations
 
             modelBuilder.Entity("SkillConnect.Models.Company", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("char(36)");
 
                     b.Property<string>("Address")
                         .IsRequired()
@@ -40,19 +38,21 @@ namespace SkillConnect.Migrations
 
                     b.Property<string>("ContactEmail")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(255)");
 
                     b.Property<string>("ContactPhone")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(255)");
 
                     b.Property<string>("Country")
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<string>("LogoUrl")
-                        .IsRequired()
-                        .HasColumnType("longtext");
+                    b.Property<long>("CreatedAtUnix")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("DistrictId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -62,9 +62,8 @@ namespace SkillConnect.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<string>("State")
-                        .IsRequired()
-                        .HasColumnType("longtext");
+                    b.Property<int>("StateId")
+                        .HasColumnType("int");
 
                     b.Property<string>("WebsiteUrl")
                         .IsRequired()
@@ -72,7 +71,101 @@ namespace SkillConnect.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ContactEmail")
+                        .IsUnique();
+
+                    b.HasIndex("ContactPhone")
+                        .IsUnique();
+
+                    b.HasIndex("DistrictId");
+
+                    b.HasIndex("StateId");
+
                     b.ToTable("Companies");
+                });
+
+            modelBuilder.Entity("SkillConnect.Models.District", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("NameTelugu")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("StateId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StateId");
+
+                    b.ToTable("District");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Visakhapatnam",
+                            NameTelugu = "విశాఖపట్నం",
+                            StateId = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Vijayawada",
+                            NameTelugu = "విజయవాడ",
+                            StateId = 1
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Hyderabad",
+                            NameTelugu = "హైదరాబాద్",
+                            StateId = 2
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "Warangal",
+                            NameTelugu = "వారంగల్",
+                            StateId = 2
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Name = "Chennai",
+                            NameTelugu = "చెన్నై",
+                            StateId = 3
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Name = "Coimbatore",
+                            NameTelugu = "కోయంబత్తూరు",
+                            StateId = 3
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Name = "Bengaluru",
+                            NameTelugu = "బెంగుళూరు",
+                            StateId = 4
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Name = "Mysuru",
+                            NameTelugu = "మైసూరు",
+                            StateId = 4
+                        });
                 });
 
             modelBuilder.Entity("SkillConnect.Models.JobApplication", b =>
@@ -81,33 +174,32 @@ namespace SkillConnect.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
-                    b.Property<long>("AppliedAt")
+                    b.Property<string>("ApplicantEmail")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ApplicantName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ApplicantPhone")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<long>("AppliedAtUnix")
                         .HasColumnType("bigint");
-
-                    b.Property<Guid>("CandidateId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<bool>("IsWithdrawn")
-                        .HasColumnType("tinyint(1)");
 
                     b.Property<Guid>("JobPostId")
                         .HasColumnType("char(36)");
 
-                    b.Property<string>("QuestionnaireAnswers")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<bool>("RequiresAccommodation")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("char(36)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CandidateId");
-
                     b.HasIndex("JobPostId");
+
+                    b.HasIndex("UserId", "JobPostId")
+                        .IsUnique();
 
                     b.ToTable("JobApplications");
                 });
@@ -118,72 +210,237 @@ namespace SkillConnect.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
-                    b.Property<string>("AccommodationDetails")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<long>("ApplicationDeadline")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("CompanyId")
-                        .HasColumnType("int");
-
-                    b.Property<long>("CreatedAt")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<int?>("ExperienceRequired")
-                        .HasColumnType("int");
-
-                    b.Property<decimal?>("FixedSalary")
-                        .HasColumnType("decimal(65,30)");
-
-                    b.Property<int>("GenderRequirement")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ITICertifications")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<bool>("IsUrgent")
+                    b.Property<bool>("AccommodationProvided")
                         .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("AdditionalBenefits")
+                        .HasColumnType("longtext");
+
+                    b.Property<long>("ApplicationDeadlineUnix")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("ApplicationProcess")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<bool>("ApprenticesConsidered")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<long>("CreatedAtUnix")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("District")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("EmploymentType")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int?>("ExperienceMax")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ExperienceMin")
+                        .HasColumnType("int");
+
+                    b.Property<string>("GenderRequirement")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("JobDescription")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("JobTitle")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Location")
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<Guid>("RecruiterId")
+                    b.Property<int?>("MaxAge")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MinAge")
+                        .HasColumnType("int");
+
+                    b.Property<long?>("ModifiedAtUnix")
+                        .HasColumnType("bigint");
+
+                    b.Property<decimal>("SalaryMax")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<decimal>("SalaryMin")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<bool>("Urgent")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<Guid?>("UserModelId")
                         .HasColumnType("char(36)");
 
-                    b.Property<decimal?>("SalaryFrom")
-                        .HasColumnType("decimal(65,30)");
-
-                    b.Property<decimal?>("SalaryTo")
-                        .HasColumnType("decimal(65,30)");
-
-                    b.Property<int>("SalaryType")
+                    b.Property<int>("WorkingHoursMax")
                         .HasColumnType("int");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<int>("Visibility")
+                    b.Property<int>("WorkingHoursMin")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CompanyId");
 
-                    b.HasIndex("RecruiterId");
+                    b.HasIndex("UserModelId");
 
                     b.ToTable("JobPosts");
+                });
+
+            modelBuilder.Entity("SkillConnect.Models.JobPostTrade", b =>
+                {
+                    b.Property<Guid>("JobPostId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<int>("TradeId")
+                        .HasColumnType("int");
+
+                    b.HasKey("JobPostId", "TradeId");
+
+                    b.HasIndex("TradeId");
+
+                    b.ToTable("JobPostTrade");
+                });
+
+            modelBuilder.Entity("SkillConnect.Models.State", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("NameTelugu")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("State");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Andhra Pradesh",
+                            NameTelugu = "ఆంధ్రప్రదేశ్"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Telangana",
+                            NameTelugu = "తెలంగాణ"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Tamil Nadu",
+                            NameTelugu = "తమిళనాడు"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "Karnataka",
+                            NameTelugu = "కర్ణాటక"
+                        });
+                });
+
+            modelBuilder.Entity("SkillConnect.Models.Trade", b =>
+                {
+                    b.Property<int>("TradeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("TradeId"));
+
+                    b.Property<string>("TradeName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("TradeNameTelugu")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("TradeId");
+
+                    b.ToTable("Trade");
+
+                    b.HasData(
+                        new
+                        {
+                            TradeId = 1,
+                            TradeName = "Electrician",
+                            TradeNameTelugu = "ఎలక్ట్రీషియన్"
+                        },
+                        new
+                        {
+                            TradeId = 2,
+                            TradeName = "Fitter",
+                            TradeNameTelugu = "ఫిట్టర్"
+                        },
+                        new
+                        {
+                            TradeId = 3,
+                            TradeName = "Welder",
+                            TradeNameTelugu = "వెల్డర్"
+                        },
+                        new
+                        {
+                            TradeId = 4,
+                            TradeName = "Turner",
+                            TradeNameTelugu = "టర్నర్"
+                        },
+                        new
+                        {
+                            TradeId = 5,
+                            TradeName = "Machinist",
+                            TradeNameTelugu = "మెషినిస్ట్"
+                        },
+                        new
+                        {
+                            TradeId = 6,
+                            TradeName = "Plumber",
+                            TradeNameTelugu = "ప్లంబర్"
+                        },
+                        new
+                        {
+                            TradeId = 7,
+                            TradeName = "Refrigeration & Air Conditioning",
+                            TradeNameTelugu = "ఎయిర్ కండిషనింగ్ మరియు రిఫ్రిజరేషన్"
+                        },
+                        new
+                        {
+                            TradeId = 8,
+                            TradeName = "Mechanic Diesel",
+                            TradeNameTelugu = "మెకానిక్ డీజిల్"
+                        },
+                        new
+                        {
+                            TradeId = 9,
+                            TradeName = "Mechanic Motor Vehicle",
+                            TradeNameTelugu = "మెకానిక్ మోటార్ వాహనం"
+                        },
+                        new
+                        {
+                            TradeId = 10,
+                            TradeName = "Computer Operator and Programming Assistant (COPA)",
+                            TradeNameTelugu = "కంప్యూటర్ ఆపరేటర్ మరియు ప్రోగ్రామింగ్ అసిస్టెంట్"
+                        });
                 });
 
             modelBuilder.Entity("SkillConnect.Models.UserModel", b =>
@@ -279,23 +536,53 @@ namespace SkillConnect.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("SkillConnect.Models.JobApplication", b =>
+            modelBuilder.Entity("SkillConnect.Models.Company", b =>
                 {
-                    b.HasOne("SkillConnect.Models.UserModel", "Candidate")
-                        .WithMany("Applications")
-                        .HasForeignKey("CandidateId")
+                    b.HasOne("SkillConnect.Models.District", "District")
+                        .WithMany("Companies")
+                        .HasForeignKey("DistrictId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("SkillConnect.Models.State", "State")
+                        .WithMany("Companies")
+                        .HasForeignKey("StateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("District");
+
+                    b.Navigation("State");
+                });
+
+            modelBuilder.Entity("SkillConnect.Models.District", b =>
+                {
+                    b.HasOne("SkillConnect.Models.State", "State")
+                        .WithMany("Districts")
+                        .HasForeignKey("StateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("State");
+                });
+
+            modelBuilder.Entity("SkillConnect.Models.JobApplication", b =>
+                {
                     b.HasOne("SkillConnect.Models.JobPost", "JobPost")
                         .WithMany("Applications")
                         .HasForeignKey("JobPostId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Candidate");
+                    b.HasOne("SkillConnect.Models.UserModel", "User")
+                        .WithMany("JobApplications")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("JobPost");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("SkillConnect.Models.JobPost", b =>
@@ -306,15 +593,30 @@ namespace SkillConnect.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("SkillConnect.Models.UserModel", "Recruiter")
+                    b.HasOne("SkillConnect.Models.UserModel", null)
                         .WithMany("PostedJobs")
-                        .HasForeignKey("RecruiterId")
+                        .HasForeignKey("UserModelId");
+
+                    b.Navigation("Company");
+                });
+
+            modelBuilder.Entity("SkillConnect.Models.JobPostTrade", b =>
+                {
+                    b.HasOne("SkillConnect.Models.JobPost", "JobPost")
+                        .WithMany("JobPostTrades")
+                        .HasForeignKey("JobPostId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Company");
+                    b.HasOne("SkillConnect.Models.Trade", "Trade")
+                        .WithMany("JobPostTrades")
+                        .HasForeignKey("TradeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Navigation("Recruiter");
+                    b.Navigation("JobPost");
+
+                    b.Navigation("Trade");
                 });
 
             modelBuilder.Entity("SkillConnect.Models.Company", b =>
@@ -322,14 +624,33 @@ namespace SkillConnect.Migrations
                     b.Navigation("JobPosts");
                 });
 
+            modelBuilder.Entity("SkillConnect.Models.District", b =>
+                {
+                    b.Navigation("Companies");
+                });
+
             modelBuilder.Entity("SkillConnect.Models.JobPost", b =>
                 {
                     b.Navigation("Applications");
+
+                    b.Navigation("JobPostTrades");
+                });
+
+            modelBuilder.Entity("SkillConnect.Models.State", b =>
+                {
+                    b.Navigation("Companies");
+
+                    b.Navigation("Districts");
+                });
+
+            modelBuilder.Entity("SkillConnect.Models.Trade", b =>
+                {
+                    b.Navigation("JobPostTrades");
                 });
 
             modelBuilder.Entity("SkillConnect.Models.UserModel", b =>
                 {
-                    b.Navigation("Applications");
+                    b.Navigation("JobApplications");
 
                     b.Navigation("PostedJobs");
                 });

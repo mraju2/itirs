@@ -5,6 +5,7 @@ import React from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { userService } from "../services/user-service"; // Ensure the correct path
 import { UserRegistrationData } from "@/types/user";
+import { TRADE_OPTIONS } from "../app/constants/trades"; // Ensure the correct path
 
 interface FormData {
   firstName: string;
@@ -269,29 +270,13 @@ const UserRegistration: React.FC = () => {
                   } px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 sm:text-sm appearance-none bg-white text-gray-700`}
                 >
                   <option value="">Select Trade / వృత్తిని ఎంచుకోండి</option>
-                  <option value="Electrician">
-                    Electrician / విద్యుత్ కార్మికుడు
-                  </option>
-                  <option value="Mechanic Diesel">
-                    Mechanic Diesel / డీజిల్ మెకానిక్
-                  </option>
-                  <option value="Fitter">Fitter / ఫిట్టర్</option>
-                  <option value="Mechanic motor vehicle">
-                    Mechanic motor vehicle / మోటార్ వాహన మెకానిక్
-                  </option>
-                  <option value="Welder">Welder / వెల్డర్</option>
-                  <option value="MACHINIST">MACHINIST / మెషినిస్ట్</option>
-                  <option value="Turner">Turner / టర్నర్</option>
-                  <option value="Computer operator programming assistant(COPA)">
-                    Computer operator programming assistant(COPA) / కంప్యూటర్
-                    ఆపరేటర్ ప్రోగ్రామింగ్ అసిస్టెంట్
-                  </option>
-                  <option value="Dress making">
-                    Dress making / దుస్తులు తయారీ
-                  </option>
-                  <option value="Wireman">Wireman / వైర్‌మ్యాన్</option>
-                  <option value="Others">Others / ఇతరులు</option>
+                  {TRADE_OPTIONS.map((trade) => (
+                    <option key={trade.value} value={trade.value}>
+                      {trade.label}
+                    </option>
+                  ))}
                 </select>
+
                 {errors.trade && (
                   <p className="mt-1 text-sm text-red-600">
                     {errors.trade.message}

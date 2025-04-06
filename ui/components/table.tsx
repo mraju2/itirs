@@ -11,19 +11,23 @@ export const TableHead = ({ children }: { children: React.ReactNode }) => {
 };
 
 export const TableRow = ({ children }: { children: React.ReactNode }) => (
-  <tr className="text-slate-800 odd:bg-slate-300 even:bg-white">{children}</tr>
+  <tr className="text-slate-800 odd:bg-slate-300 even:bg-white align-top">
+    {children}
+  </tr>
 );
 
 interface TableCellProps {
   children: React.ReactNode;
   colSpan?: number;
+  title?: string;
 }
 
-export const TableCell = ({ children, colSpan }: TableCellProps) => {
+export const TableCell = ({ children, colSpan, title }: TableCellProps) => {
   return (
     <td
       className="px-4 py-2 border border-slate-300 text-left whitespace-normal break-words truncate"
       colSpan={colSpan}
+      title={title}
     >
       {children}
     </td>

@@ -7,6 +7,7 @@ using SkillConnect.Repositories;
 using SkillConnect.Repositories.Interfaces;
 using SkillConnect.Services;
 using SkillConnect.Services.Interfaces;
+using SkillConnect.Mappings;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -74,7 +75,7 @@ builder.Services.AddScoped<IJobPostService, JobPostService>();
 builder.Services.AddScoped<ICompanyService, CompanyService>();
 
 // Register AutoMapper
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
 // Configure Swagger, Controllers, and CORS
 builder.Services.AddEndpointsApiExplorer();

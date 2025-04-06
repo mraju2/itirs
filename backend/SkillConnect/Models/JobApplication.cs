@@ -1,25 +1,33 @@
-using System;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using SkillConnect.Enum;
+using SkillConnect.Models;
 
 namespace SkillConnect.Models
 {
     public class JobApplication
     {
-        public Guid Id { get; set; }
+        [Key]
+        public Guid Id { get; set; } = Guid.NewGuid();
 
+        [Required]
+        public Guid UserId { get; set; }  // ✅ Fix: Use Guid
+
+        [Required]
         public Guid JobPostId { get; set; }
-        public JobPost JobPost { get; set; }
 
-        public Guid CandidateId { get; set; }
-        public UserModel Candidate { get; set; }
+        [Required]
+        public string ApplicantName { get; set; } = null!;
 
-        public ApplicationStatus Status { get; set; } = ApplicationStatus.Applied;
-        public long AppliedAt { get; set; } = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        [Required]
+        public string ApplicantPhone { get; set; } = null!;
 
-        public bool RequiresAccommodation { get; set; }
-        public string QuestionnaireAnswers { get; set; }
-        public bool IsWithdrawn { get; set; } = false;
+        public string? ApplicantEmail { get; set; }
+
+        public long AppliedAtUnix { get; set; } = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        // Navigation
+        public JobPost JobPost { get; set; } = null!;
+        public UserModel User { get; set; } = null!; // 👈 Add this
+
     }
+
 }

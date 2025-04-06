@@ -7,6 +7,11 @@ export type JobPostResponse = JobPost & {
   updatedAt?: string;
 };
 
+export type PaginatedResult<T> = {
+  items: T[];
+  totalCount: number;
+};
+
 export const jobPostService = {
   /**
    * Get all job posts
@@ -16,11 +21,52 @@ export const jobPostService = {
   },
 
   /**
+   * Get paginated job posts with search, filters, and sorting
+   * @param pageNumber - Current page number
+   * @param pageSize - Number of items per page
+   * @param searchTerm - Search term for filtering job posts
+   * @param filters - Additional filters as key-value pairs
+   * @param sortBy - Property to sort by
+   * @param isDescending - Whether to sort in descending order
+   */
+  getPaginatedJobs: async (
+    pageNumber: number,
+    pageSize: number,
+    searchTerm?: string,
+    filters?: Record<string, string>,
+    sortBy?: string,
+    isDescending: boolean = false
+  ): Promise<PaginatedResult<JobPost>> => {
+    const params = new URLSearchParams({
+      pageNumber: pageNumber.toString(),
+      pageSize: pageSize.toString(),
+      ...(searchTerm && { searchTerm }),
+      ...(sortBy && { sortBy }),
+      isDescending: isDescending.toString(),
+    });
+
+    // Add filters to the query parameters
+    if (filters) {
+      Object.entries(filters).forEach(([key, value]) => {
+        params.append(`filters[${key}]`, value);
+      });
+    }
+
+    return await fetchService({
+      method: "GET",
+      endpoint: `/jobposts/paginated?${params.toString()}`,
+    });
+  },
+
+  /**
    * Get a single job post by ID
    * @param id - Job post ID
    */
-  getJobById: async (id: number): Promise<JobPostResponse> => {
-    return await fetchService({ method: "GET", endpoint: `/api/jobposts/${id}` });
+  getJobById: async (id: number): Promise<JobPost> => {
+    return await fetchService({
+      method: "GET",
+      endpoint: `/api/jobposts/${id}`,
+    });
   },
 
   /**

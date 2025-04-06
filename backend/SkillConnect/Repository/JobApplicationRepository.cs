@@ -18,7 +18,7 @@ namespace SkillConnect.Repositories
         {
             return await _context.JobApplications
                 .Include(a => a.JobPost)
-                .Include(a => a.Candidate)
+                .Include(a => a.ApplicantName)
                 .ToListAsync();
         }
 
@@ -26,14 +26,14 @@ namespace SkillConnect.Repositories
         {
             return await _context.JobApplications
                 .Include(a => a.JobPost)
-                .Include(a => a.Candidate)
+                .Include(a => a.User.Id)
                 .FirstOrDefaultAsync(a => a.Id.ToString() == id);
         }
 
         public async Task<IEnumerable<JobApplication>> GetByCandidateIdAsync(string candidateId)
         {
             return await _context.JobApplications
-                .Where(a => a.CandidateId.ToString() == candidateId)
+                .Where(a => a.User.Id.ToString() == candidateId)
                 .Include(a => a.JobPost)
                 .ToListAsync();
         }
@@ -42,7 +42,7 @@ namespace SkillConnect.Repositories
         {
             return await _context.JobApplications
                 .Where(a => a.JobPostId.ToString() == jobPostId)
-                .Include(a => a.Candidate)
+                .Include(a => a.User.Id)
                 .ToListAsync();
         }
 

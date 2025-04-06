@@ -5,7 +5,6 @@ import { clsx } from "clsx"; // ✅ using clsx
 
 const adminLinks = [
   { label: "Dashboard", href: "/admin/dashboard", icon: "📊" },
-  { label: "Register Company", href: "/admin/companies/register", icon: "🏢" },
   { label: "Companies", href: "/admin/companies", icon: "🏭" },
   { label: "Users", href: "/admin/users", icon: "👥" },
   { label: "Applications", href: "/admin/applications", icon: "📄" },

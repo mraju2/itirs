@@ -1,3 +1,5 @@
+using SkillConnect.Models;
+using SkillConnect.Dtos;
 
 namespace SkillConnect.Services.Interfaces
 {
@@ -5,8 +7,16 @@ namespace SkillConnect.Services.Interfaces
     {
         Task<IEnumerable<JobPostDto>> GetAllAsync();
         Task<JobPostDto?> GetByIdAsync(string id);
-        Task CreateAsync(JobPostDto dto);
-        Task UpdateAsync(JobPostDto dto);
+        Task<JobPostDto> CreateAsync(JobPostDto jobPostDto); Task UpdateAsync(JobPostDto dto);
         Task DeleteAsync(string id);
+
+        // New method for paginated, sorted, filtered, and searchable job posts
+        Task<PaginatedResult<JobPostDto>> GetPaginatedAsync(
+            int pageNumber,
+            int pageSize,
+            string? searchTerm,
+            Dictionary<string, string>? filters,
+            string? sortBy,
+            bool isDescending);
     }
 }

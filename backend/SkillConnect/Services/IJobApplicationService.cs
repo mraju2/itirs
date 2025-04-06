@@ -9,6 +9,5 @@ namespace SkillConnect.Services.Interfaces
         Task<IEnumerable<JobApplicationDto>> GetByJobPostIdAsync(string jobPostId);
         Task ApplyAsync(JobApplicationDto dto);
         Task UpdateAsync(JobApplicationDto dto);
-        Task WithdrawAsync(string id);
     }
 }

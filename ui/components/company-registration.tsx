@@ -5,28 +5,33 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { companyService } from "../services/company-service";
+import { DISTRICT_OPTIONS } from "../app/constants/districts";
 
 interface FormData {
   name: string;
   address: string;
   city: string;
+  district: string;
   state: string;
   pincode: string;
-  country: string;
   contactEmail: string;
   contactPhone: string;
   websiteUrl?: string;
-  logoUrl?: string;
 }
 
-const CompanyRegistrationForm: React.FC = () => {
+interface CompanyRegistrationFormProps {
+  onSuccess?: () => void;
+}
+
+export const CompanyRegistrationForm: React.FC<
+  CompanyRegistrationFormProps
+> = ({ onSuccess }) => {
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
   } = useForm<FormData>();
-
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     try {
       await companyService.createCompany(data);
@@ -35,6 +40,7 @@ const CompanyRegistrationForm: React.FC = () => {
         autoClose: 3000,
       });
       reset();
+      onSuccess?.();
     } catch (error) {
       console.error("Error registering company:", error);
       toast.error("Failed to register company. Please try again.", {
@@ -47,21 +53,26 @@ const CompanyRegistrationForm: React.FC = () => {
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow-md mt-10">
       <h2 className="text-2xl font-semibold text-center text-indigo-600 mb-6">
-        Register a New Company
+        Register a New Company <br />
+        <span className="text-base text-gray-500">
+          కొత్త కంపెనీని నమోదు చేయండి
+        </span>
       </h2>
+
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="grid grid-cols-1 md:grid-cols-2 gap-6"
       >
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Company Name
+            Company Name{" "}
+            <span className="text-gray-500 text-xs block">కంపెనీ పేరు</span>
           </label>
           <input
             {...register("name", { required: "Company name is required" })}
             className={`w-full px-4 py-2 border ${
               errors.name ? "border-red-500" : "border-gray-300"
-            } rounded-md`}
+            } rounded-md text-black`}
             placeholder="e.g. Tata Motors"
           />
           {errors.name && (
@@ -69,15 +80,17 @@ const CompanyRegistrationForm: React.FC = () => {
           )}
         </div>
 
-        <div>
+        <div className="md:col-span-2">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Address
+            Address{" "}
+            <span className="text-gray-500 text-xs block">చిరునామా</span>
           </label>
-          <input
+          <textarea
             {...register("address", { required: "Address is required" })}
             className={`w-full px-4 py-2 border ${
               errors.address ? "border-red-500" : "border-gray-300"
-            } rounded-md`}
+            } rounded-md text-black`}
+            rows={3}
           />
           {errors.address && (
             <p className="text-sm text-red-600">{errors.address.message}</p>
@@ -86,13 +99,13 @@ const CompanyRegistrationForm: React.FC = () => {
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            City
+            City <span className="text-gray-500 text-xs block">నగరం</span>
           </label>
           <input
             {...register("city", { required: "City is required" })}
             className={`w-full px-4 py-2 border ${
               errors.city ? "border-red-500" : "border-gray-300"
-            } rounded-md`}
+            } rounded-md text-black`}
           />
           {errors.city && (
             <p className="text-sm text-red-600">{errors.city.message}</p>
@@ -101,28 +114,36 @@ const CompanyRegistrationForm: React.FC = () => {
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            State
+            District <span className="text-gray-500 text-xs block">జిల్లా</span>
           </label>
-          <input
-            {...register("state", { required: "State is required" })}
+          <select
+            {...register("district", { required: "District is required" })}
             className={`w-full px-4 py-2 border ${
-              errors.state ? "border-red-500" : "border-gray-300"
-            } rounded-md`}
-          />
-          {errors.state && (
-            <p className="text-sm text-red-600">{errors.state.message}</p>
+              errors.district ? "border-red-500" : "border-gray-300"
+            } rounded-md text-black`}
+          >
+            <option value="">జిల్లాను ఎంచుకోండి</option>
+            {DISTRICT_OPTIONS.map((d) => (
+              <option key={d.value} value={d.value}>
+                {d.label}
+              </option>
+            ))}
+          </select>
+          {errors.district && (
+            <p className="text-sm text-red-600">{errors.district.message}</p>
           )}
         </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Pincode
+            Pincode{" "}
+            <span className="text-gray-500 text-xs block">పిన్ కోడ్</span>
           </label>
           <input
             {...register("pincode", { required: "Pincode is required" })}
             className={`w-full px-4 py-2 border ${
               errors.pincode ? "border-red-500" : "border-gray-300"
-            } rounded-md`}
+            } rounded-md text-black`}
           />
           {errors.pincode && (
             <p className="text-sm text-red-600">{errors.pincode.message}</p>
@@ -131,29 +152,27 @@ const CompanyRegistrationForm: React.FC = () => {
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Country
+            State <span className="text-gray-500 text-xs block">రాష్ట్రం</span>
           </label>
           <input
-            {...register("country", { required: "Country is required" })}
-            className={`w-full px-4 py-2 border ${
-              errors.country ? "border-red-500" : "border-gray-300"
-            } rounded-md`}
+            {...register("state")}
+            value="Andhra Pradesh"
+            readOnly
+            className="w-full px-4 py-2 border border-gray-300 bg-gray-100 rounded-md text-black"
           />
-          {errors.country && (
-            <p className="text-sm text-red-600">{errors.country.message}</p>
-          )}
         </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Contact Email
+            Contact Email{" "}
+            <span className="text-gray-500 text-xs block">ఈమెయిల్</span>
           </label>
           <input
             type="email"
             {...register("contactEmail", { required: "Email is required" })}
             className={`w-full px-4 py-2 border ${
               errors.contactEmail ? "border-red-500" : "border-gray-300"
-            } rounded-md`}
+            } rounded-md text-black`}
           />
           {errors.contactEmail && (
             <p className="text-sm text-red-600">
@@ -164,7 +183,8 @@ const CompanyRegistrationForm: React.FC = () => {
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Contact Phone
+            Contact Phone{" "}
+            <span className="text-gray-500 text-xs block">ఫోన్ నంబర్</span>
           </label>
           <input
             {...register("contactPhone", {
@@ -172,7 +192,7 @@ const CompanyRegistrationForm: React.FC = () => {
             })}
             className={`w-full px-4 py-2 border ${
               errors.contactPhone ? "border-red-500" : "border-gray-300"
-            } rounded-md`}
+            } rounded-md text-black`}
           />
           {errors.contactPhone && (
             <p className="text-sm text-red-600">
@@ -183,23 +203,15 @@ const CompanyRegistrationForm: React.FC = () => {
 
         <div className="md:col-span-2">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Website URL
+            Website URL{" "}
+            <span className="text-gray-500 text-xs block">
+              వెబ్‌సైట్ (ఐచ్చికం)
+            </span>
           </label>
           <input
             {...register("websiteUrl")}
-            className="w-full px-4 py-2 border border-gray-300 rounded-md"
+            className="w-full px-4 py-2 border border-gray-300 rounded-md text-black"
             placeholder="https://yourcompany.com"
-          />
-        </div>
-
-        <div className="md:col-span-2">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Logo URL
-          </label>
-          <input
-            {...register("logoUrl")}
-            className="w-full px-4 py-2 border border-gray-300 rounded-md"
-            placeholder="https://yourlogo.com/logo.png"
           />
         </div>
 
@@ -208,12 +220,10 @@ const CompanyRegistrationForm: React.FC = () => {
             type="submit"
             className="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700"
           >
-            Register Company
+            Register Company / కంపెనీని నమోదు చేయండి
           </button>
         </div>
       </form>
     </div>
   );
 };
-
-export default CompanyRegistrationForm;
