@@ -16,13 +16,17 @@ namespace SkillConnect.Repositories
 
         public async Task<IEnumerable<JobPost>> GetAllAsync()
         {
-            return await _context.JobPosts.Include(j => j.Company).ToListAsync();
+            return await _context.JobPosts
+                .Include(j => j.Company)
+                .Include(j => j.JobPostTrades)
+                .ToListAsync();
         }
 
         public async Task<JobPost?> GetByIdAsync(string id)
         {
             return await _context.JobPosts
                 .Include(j => j.Company)
+                .Include(j => j.JobPostTrades)
                 .Include(j => j.Applications)
                 .FirstOrDefaultAsync(j => j.Id.ToString() == id);
         }
@@ -57,43 +61,49 @@ namespace SkillConnect.Repositories
             string? sortBy,
             bool isDescending)
         {
-            // Start with the base query
             var query = _context.JobPosts
+                .Include(j => j.Company)
+                .Include(j => j.JobPostTrades)
                 .AsQueryable();
 
-            // Apply search
-            if (!string.IsNullOrEmpty(searchTerm))
+            // Search
+            if (!string.IsNullOrWhiteSpace(searchTerm))
             {
                 query = query.Where(j =>
-                    j.JobTitle.Contains(searchTerm));
+                    j.JobTitle.Contains(searchTerm) ||
+                    j.Company.Name.Contains(searchTerm));
             }
 
-            // Apply filters
+            // Filters
             if (filters != null)
             {
                 foreach (var filter in filters)
                 {
-                    if (filter.Key == "Location" && !string.IsNullOrEmpty(filter.Value))
-                    {
-                        query = query.Where(j => j.Location == filter.Value);
-                    }
-                    // Add more filters as needed
+                    var key = filter.Key.ToLower();
+                    var value = filter.Value;
+
+                    if (key == "district" && !string.IsNullOrWhiteSpace(value))
+                        query = query.Where(j => j.District == value);
+
+                    if (key == "company" && !string.IsNullOrWhiteSpace(value))
+                        query = query.Where(j => j.Company.Name.Contains(value));
+
+                    if (key == "urgent" && bool.TryParse(value, out var urgent))
+                        query = query.Where(j => j.Urgent == urgent);
                 }
             }
 
-            // Apply sorting
-            // Apply sorting
-            if (!string.IsNullOrEmpty(sortBy))
+            // Sorting
+            if (!string.IsNullOrWhiteSpace(sortBy))
             {
-                // Normalize casing (handle from frontend safely)
                 sortBy = sortBy.Trim().ToLower() switch
                 {
-                    "createddate" => "CreatedAt",
-                    "title" => "Title",
-                    "location" => "Location",
-                    "salaryfrom" => "SalaryFrom",
-                    "salaryto" => "SalaryTo",
-                    _ => "CreatedAt"
+                    "jobtitle" => "JobTitle",
+                    "salarymin" => "SalaryMin",
+                    "salarymax" => "SalaryMax",
+                    "createdat" => "CreatedAtUnix",
+                    "deadline" => "ApplicationDeadlineUnix",
+                    _ => "CreatedAtUnix"
                 };
 
                 query = isDescending
@@ -102,26 +112,33 @@ namespace SkillConnect.Repositories
             }
             else
             {
-                // Default sort if nothing is provided
                 query = query.OrderByDescending(j => j.ApplicationDeadlineUnix);
             }
 
-
-            // Get total count before pagination
             var totalCount = await query.CountAsync();
 
-            // Apply pagination
             var items = await query
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
 
-            // Return paginated result
             return new PaginatedResult<JobPost>
             {
                 Items = items,
-                TotalCount = totalCount
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
             };
         }
+
+        public async Task<List<JobPost>> GetJobPostsByCompanyIdAsync(Guid companyId)
+        {
+            return await _context.JobPosts
+                .Include(j => j.JobPostTrades).ThenInclude(jpt => jpt.Trade)
+                .Include(j => j.Company)
+                .Where(j => j.CompanyId == companyId)
+                .ToListAsync();
+        }
+
     }
 }

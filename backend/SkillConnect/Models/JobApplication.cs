@@ -26,7 +26,7 @@ namespace SkillConnect.Models
 
         // Navigation
         public JobPost JobPost { get; set; } = null!;
-        public UserModel User { get; set; } = null!; // 👈 Add this
+        public User User { get; set; } = null!; // 👈 Add this
 
     }
 

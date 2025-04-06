@@ -51,6 +51,12 @@ namespace SkillConnect.Models
         [Required]
         public bool AccommodationProvided { get; set; }
 
+        public int? Vacancies { get; set; } // Total positions available
+
+
+        public string? FacilitiesProvided { get; set; } // e.g. "Transport, Food, Uniform, Shoe"
+
+
         [Required]
         public int WorkingHoursMin { get; set; }
 

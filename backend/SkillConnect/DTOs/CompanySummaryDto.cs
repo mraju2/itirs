@@ -2,12 +2,11 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-
 namespace SkillConnect.Dtos
 {
-    public class CompanyUpdateDto : CompanyCreateDto
+    public class CompanySummaryDto
     {
-        [Required]
-        public Guid Id { get; set; }
+        public string Id { get; set; }
+        public string Name { get; set; }
     }
 }

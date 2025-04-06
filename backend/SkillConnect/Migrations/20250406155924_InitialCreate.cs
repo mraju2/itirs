@@ -52,51 +52,6 @@ namespace SkillConnect.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "Users",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    FirstName = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    LastName = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    FatherName = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    DateOfBirth = table.Column<long>(type: "bigint", nullable: false),
-                    Trade = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    OtherTrade = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Address = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Mandal = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    District = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    PassYear = table.Column<int>(type: "int", nullable: false),
-                    Percentage = table.Column<decimal>(type: "decimal(65,30)", nullable: false),
-                    Experience = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    SalaryExpectation = table.Column<decimal>(type: "decimal(65,30)", nullable: false),
-                    WorkLocation = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    PhoneNumber = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Email = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    ITIName = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    About = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    RegistrationDate = table.Column<long>(type: "bigint", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Users", x => x.Id);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
                 name: "District",
                 columns: table => new
                 {
@@ -164,6 +119,68 @@ namespace SkillConnect.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "Users",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    FirstName = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    LastName = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    FatherName = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    DateOfBirth = table.Column<long>(type: "bigint", nullable: false),
+                    TradeId = table.Column<int>(type: "int", nullable: false),
+                    OtherTrade = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Address = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Mandal = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    DistrictId = table.Column<int>(type: "int", nullable: false),
+                    StateId = table.Column<int>(type: "int", nullable: false),
+                    PassYear = table.Column<int>(type: "int", nullable: false),
+                    Percentage = table.Column<decimal>(type: "decimal(65,30)", nullable: false),
+                    Experience = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    SalaryExpectation = table.Column<decimal>(type: "decimal(65,30)", nullable: false),
+                    WorkLocation = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    PhoneNumber = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Email = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    ITIName = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    About = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    RegistrationDate = table.Column<long>(type: "bigint", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Users", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Users_District_DistrictId",
+                        column: x => x.DistrictId,
+                        principalTable: "District",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Users_State_StateId",
+                        column: x => x.StateId,
+                        principalTable: "State",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Users_Trade_TradeId",
+                        column: x => x.TradeId,
+                        principalTable: "Trade",
+                        principalColumn: "TradeId",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "JobPosts",
                 columns: table => new
                 {
@@ -191,6 +208,9 @@ namespace SkillConnect.Migrations
                     SalaryMin = table.Column<decimal>(type: "decimal(65,30)", nullable: false),
                     SalaryMax = table.Column<decimal>(type: "decimal(65,30)", nullable: false),
                     AccommodationProvided = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    Vacancies = table.Column<int>(type: "int", nullable: true),
+                    FacilitiesProvided = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
                     WorkingHoursMin = table.Column<int>(type: "int", nullable: false),
                     WorkingHoursMax = table.Column<int>(type: "int", nullable: false),
                     ExperienceMin = table.Column<int>(type: "int", nullable: false),
@@ -199,7 +219,7 @@ namespace SkillConnect.Migrations
                     Urgent = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     CreatedAtUnix = table.Column<long>(type: "bigint", nullable: false),
                     ModifiedAtUnix = table.Column<long>(type: "bigint", nullable: true),
-                    UserModelId = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci")
+                    UserId = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci")
                 },
                 constraints: table =>
                 {
@@ -211,8 +231,8 @@ namespace SkillConnect.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_JobPosts_Users_UserModelId",
-                        column: x => x.UserModelId,
+                        name: "FK_JobPosts_Users_UserId",
+                        column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id");
                 })
@@ -363,13 +383,28 @@ namespace SkillConnect.Migrations
                 column: "CompanyId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_JobPosts_UserModelId",
+                name: "IX_JobPosts_UserId",
                 table: "JobPosts",
-                column: "UserModelId");
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_JobPostTrade_TradeId",
                 table: "JobPostTrade",
+                column: "TradeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_DistrictId",
+                table: "Users",
+                column: "DistrictId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_StateId",
+                table: "Users",
+                column: "StateId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_TradeId",
+                table: "Users",
                 column: "TradeId");
         }
 
@@ -386,9 +421,6 @@ namespace SkillConnect.Migrations
                 name: "JobPosts");
 
             migrationBuilder.DropTable(
-                name: "Trade");
-
-            migrationBuilder.DropTable(
                 name: "Companies");
 
             migrationBuilder.DropTable(
@@ -396,6 +428,9 @@ namespace SkillConnect.Migrations
 
             migrationBuilder.DropTable(
                 name: "District");
+
+            migrationBuilder.DropTable(
+                name: "Trade");
 
             migrationBuilder.DropTable(
                 name: "State");

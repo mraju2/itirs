@@ -10,11 +10,20 @@ namespace SkillConnect.Mappings
         {
             // Company
             CreateMap<Company, CompanyDto>()
-                .ForMember(dest => dest.State, opt => opt.MapFrom(src => src.State.Name))
-                .ForMember(dest => dest.District, opt => opt.MapFrom(src => src.District.Name));
+                .ForMember(dest => dest.StateName, opt => opt.MapFrom(src => src.State.Name))
+                .ForMember(dest => dest.DistrictName, opt => opt.MapFrom(src => src.District.Name));
 
             CreateMap<CompanyCreateDto, Company>();
             CreateMap<CompanyUpdateDto, Company>();
+
+            CreateMap<JobPostCreateDto, JobPost>()
+           .ForMember(dest => dest.Id, opt => opt.MapFrom(src => Guid.NewGuid()))
+           .ForMember(dest => dest.CreatedAtUnix, opt => opt.MapFrom(_ => DateTimeOffset.UtcNow.ToUnixTimeSeconds()))
+           .ForMember(dest => dest.JobPostTrades, opt => opt.Ignore()) // You’ll handle this manually
+           .ForMember(dest => dest.Company, opt => opt.Ignore()) // Navigation property, handled by EF
+           .ForMember(dest => dest.Applications, opt => opt.Ignore()) // Navigation property, empty on create
+            .ForMember(dest => dest.Location, opt => opt.MapFrom(src => src.JobLocation)); // <-- Fix is here
+
 
             // JobPost
             CreateMap<JobPost, JobPostDto>()
@@ -32,6 +41,29 @@ namespace SkillConnect.Mappings
             // State & District
             CreateMap<State, StateDto>();
             CreateMap<District, DistrictDto>();
+
+            // User
+            CreateMap<User, UserDto>()
+    .ForMember(dest => dest.TradeName, opt => opt.MapFrom(src => src.Trade.TradeName))
+    .ForMember(dest => dest.StateName, opt => opt.MapFrom(src => src.State.Name))
+    .ForMember(dest => dest.DistrictName, opt => opt.MapFrom(src => src.District.Name))
+    .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()));
+
+
+            CreateMap<CreateUserDto, User>();
+            CreateMap<UpdateUserDto, User>();
+            CreateMap<PatchUserDto, User>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null)); // Only map non-null values
+
+            CreateMap<User, UserDto>()
+    .ForMember(dest => dest.TradeName, opt => opt.MapFrom(src => src.Trade.TradeName))
+    .ForMember(dest => dest.StateName, opt => opt.MapFrom(src => src.State.Name))
+    .ForMember(dest => dest.DistrictName, opt => opt.MapFrom(src => src.District.Name))
+    .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()));
+
+            CreateMap<UserDto, User>(); // For reverse mapping if needed
+
+
         }
     }
 }

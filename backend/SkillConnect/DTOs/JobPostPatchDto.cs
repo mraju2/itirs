@@ -25,6 +25,12 @@ namespace SkillConnect.Dtos
         public int? ExperienceMax { get; set; }
         public bool? ApprenticesConsidered { get; set; }
         public bool? Urgent { get; set; }
+
+        public int? Vacancies { get; set; } // Total positions available
+
+
+        public string? FacilitiesProvided { get; set; } // e.g. "Transport, Food, Uniform, Shoe"
+
         public List<int>? TradeIds { get; set; }
     }
 }

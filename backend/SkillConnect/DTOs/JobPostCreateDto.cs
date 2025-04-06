@@ -9,6 +9,8 @@ namespace SkillConnect.Dtos
         public Guid CompanyId { get; set; }
         public string JobTitle { get; set; } = null!;
         public string District { get; set; } = null!;
+
+        public string JobLocation { get; set; } = null!;
         public string JobDescription { get; set; } = null!;
         public string EmploymentType { get; set; } = null!;
         public string ApplicationProcess { get; set; } = null!;

@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using SkillConnect.Data;
 using SkillConnect.Models;
 using SkillConnect.Repositories.Interfaces;
+using SkillConnect.Dtos;
 
 namespace SkillConnect.Repositories
 {

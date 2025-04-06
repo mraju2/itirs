@@ -1,4 +1,5 @@
 using AutoMapper;
+using SkillConnect.Dtos;
 using SkillConnect.Models;
 using SkillConnect.Repositories.Interfaces;
 using SkillConnect.Services.Interfaces;
@@ -28,7 +29,7 @@ namespace SkillConnect.Services
             return company == null ? null : _mapper.Map<CompanyDto>(company);
         }
 
-        public async Task<CompanyDto> CreateAsync(CompanyDto dto)
+        public async Task<CompanyDto> CreateAsync(CompanyCreateDto dto)
         {
             try
             {
@@ -58,7 +59,7 @@ namespace SkillConnect.Services
             }
         }
 
-        public async Task UpdateAsync(CompanyDto dto)
+        public async Task UpdateAsync(CompanyUpdateDto dto)
         {
             var entity = _mapper.Map<Company>(dto);
             await _repository.UpdateAsync(entity);

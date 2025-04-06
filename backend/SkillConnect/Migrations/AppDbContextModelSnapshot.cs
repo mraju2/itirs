@@ -246,6 +246,9 @@ namespace SkillConnect.Migrations
                     b.Property<int>("ExperienceMin")
                         .HasColumnType("int");
 
+                    b.Property<string>("FacilitiesProvided")
+                        .HasColumnType("longtext");
+
                     b.Property<string>("GenderRequirement")
                         .IsRequired()
                         .HasColumnType("longtext");
@@ -280,8 +283,11 @@ namespace SkillConnect.Migrations
                     b.Property<bool>("Urgent")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<Guid?>("UserModelId")
+                    b.Property<Guid?>("UserId")
                         .HasColumnType("char(36)");
+
+                    b.Property<int?>("Vacancies")
+                        .HasColumnType("int");
 
                     b.Property<int>("WorkingHoursMax")
                         .HasColumnType("int");
@@ -293,7 +299,7 @@ namespace SkillConnect.Migrations
 
                     b.HasIndex("CompanyId");
 
-                    b.HasIndex("UserModelId");
+                    b.HasIndex("UserId");
 
                     b.ToTable("JobPosts");
                 });
@@ -443,7 +449,7 @@ namespace SkillConnect.Migrations
                         });
                 });
 
-            modelBuilder.Entity("SkillConnect.Models.UserModel", b =>
+            modelBuilder.Entity("SkillConnect.Models.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -462,10 +468,8 @@ namespace SkillConnect.Migrations
                     b.Property<long>("DateOfBirth")
                         .HasColumnType("bigint");
 
-                    b.Property<string>("District")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
+                    b.Property<int>("DistrictId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -521,10 +525,11 @@ namespace SkillConnect.Migrations
                     b.Property<decimal>("SalaryExpectation")
                         .HasColumnType("decimal(65,30)");
 
-                    b.Property<string>("Trade")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
+                    b.Property<int>("StateId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TradeId")
+                        .HasColumnType("int");
 
                     b.Property<string>("WorkLocation")
                         .IsRequired()
@@ -532,6 +537,12 @@ namespace SkillConnect.Migrations
                         .HasColumnType("varchar(50)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DistrictId");
+
+                    b.HasIndex("StateId");
+
+                    b.HasIndex("TradeId");
 
                     b.ToTable("Users");
                 });
@@ -574,7 +585,7 @@ namespace SkillConnect.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("SkillConnect.Models.UserModel", "User")
+                    b.HasOne("SkillConnect.Models.User", "User")
                         .WithMany("JobApplications")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -593,9 +604,9 @@ namespace SkillConnect.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("SkillConnect.Models.UserModel", null)
+                    b.HasOne("SkillConnect.Models.User", null)
                         .WithMany("PostedJobs")
-                        .HasForeignKey("UserModelId");
+                        .HasForeignKey("UserId");
 
                     b.Navigation("Company");
                 });
@@ -615,6 +626,33 @@ namespace SkillConnect.Migrations
                         .IsRequired();
 
                     b.Navigation("JobPost");
+
+                    b.Navigation("Trade");
+                });
+
+            modelBuilder.Entity("SkillConnect.Models.User", b =>
+                {
+                    b.HasOne("SkillConnect.Models.District", "District")
+                        .WithMany()
+                        .HasForeignKey("DistrictId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SkillConnect.Models.State", "State")
+                        .WithMany()
+                        .HasForeignKey("StateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SkillConnect.Models.Trade", "Trade")
+                        .WithMany()
+                        .HasForeignKey("TradeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("District");
+
+                    b.Navigation("State");
 
                     b.Navigation("Trade");
                 });
@@ -648,7 +686,7 @@ namespace SkillConnect.Migrations
                     b.Navigation("JobPostTrades");
                 });
 
-            modelBuilder.Entity("SkillConnect.Models.UserModel", b =>
+            modelBuilder.Entity("SkillConnect.Models.User", b =>
                 {
                     b.Navigation("JobApplications");
 

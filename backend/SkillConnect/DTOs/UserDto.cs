@@ -1,10 +1,10 @@
 using System.Text.Json.Serialization;
 
-namespace SkillConnect.Models
+namespace SkillConnect.Dtos
 {
-    public class UserDTO
+    public class UserDto
     {
-        public string? Id { get; set; }  // ✅ Added Id (nullable for new users)
+        public string? Id { get; set; }
 
         [JsonPropertyName("firstName")]
         public string FirstName { get; set; }
@@ -16,13 +16,16 @@ namespace SkillConnect.Models
         public string FatherName { get; set; }
 
         [JsonPropertyName("dateOfBirth")]
-        public long DateOfBirth { get; set; } // Unix Timestamp
+        public long DateOfBirth { get; set; }
 
-        [JsonPropertyName("trade")]
-        public string Trade { get; set; }
+        [JsonPropertyName("tradeId")]
+        public int TradeId { get; set; }
+
+        [JsonPropertyName("tradeName")]
+        public string? TradeName { get; set; } // For display only
 
         [JsonPropertyName("otherTrade")]
-        public string? OtherTrade { get; set; } // Optional
+        public string? OtherTrade { get; set; }
 
         [JsonPropertyName("address")]
         public string Address { get; set; }
@@ -30,8 +33,17 @@ namespace SkillConnect.Models
         [JsonPropertyName("mandal")]
         public string Mandal { get; set; }
 
-        [JsonPropertyName("district")]
-        public string District { get; set; }
+        [JsonPropertyName("districtId")]
+        public int DistrictId { get; set; }
+
+        [JsonPropertyName("districtName")]
+        public string? DistrictName { get; set; }
+
+        [JsonPropertyName("stateId")]
+        public int StateId { get; set; }
+
+        [JsonPropertyName("stateName")]
+        public string? StateName { get; set; }
 
         [JsonPropertyName("passYear")]
         public int PassYear { get; set; }
@@ -40,7 +52,7 @@ namespace SkillConnect.Models
         public decimal Percentage { get; set; }
 
         [JsonPropertyName("experience")]
-        public string Experience { get; set; }
+        public string? Experience { get; set; }
 
         [JsonPropertyName("salaryExpectation")]
         public decimal SalaryExpectation { get; set; }

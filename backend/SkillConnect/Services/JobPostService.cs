@@ -7,7 +7,7 @@ using SkillConnect.Dtos;
 public class JobPostService : IJobPostService
 {
     private readonly IJobPostRepository _repository;
-    private readonly IMapper _mapper; // AutoMapper (optional but recommended)
+    private readonly IMapper _mapper;
 
     public JobPostService(IJobPostRepository repository, IMapper mapper)
     {
@@ -27,37 +27,44 @@ public class JobPostService : IJobPostService
         return job == null ? null : _mapper.Map<JobPostDto>(job);
     }
 
-    public async Task<JobPostDto> CreateAsync(JobPostDto dto)
+    public async Task<JobPostDto> CreateAsync(JobPostCreateDto dto)
     {
         try
         {
-
             var entity = _mapper.Map<JobPost>(dto);
-            await _repository.AddAsync(entity); // Make sure this includes SaveChangesAsync
+            entity.CreatedAtUnix = DateTimeOffset.UtcNow.ToUnixTimeSeconds(); // set created time
+            await _repository.AddAsync(entity);
 
             return _mapper.Map<JobPostDto>(entity);
         }
         catch (InvalidOperationException ex)
         {
             Console.WriteLine(ex.Message);
-            // Optional: _logger.LogWarning(ex, "Validation failed while creating job post");
             throw new CustomException("Validation Error", ex.Message, 400);
         }
         catch (Exception ex)
         {
             Console.WriteLine(ex.Message);
-
-            // Optional: _logger.LogError(ex, "Unexpected error during job post creation");
             throw new CustomException("Internal Server Error", "An unexpected error occurred.", 500);
         }
     }
 
-
-    public async Task UpdateAsync(JobPostDto dto)
+    public async Task UpdateAsync(JobPostUpdateDto dto)
     {
-        var entity = _mapper.Map<JobPost>(dto);
-        await _repository.UpdateAsync(entity);
+        var existing = await _repository.GetByIdAsync(dto.Id.ToString());
+        if (existing == null)
+            throw new CustomException("Not Found", "Job post not found", 404);
+
+        var updated = _mapper.Map(dto, existing);
+        await _repository.UpdateAsync(updated);
     }
+
+    public async Task<List<JobPostDto>> GetByCompanyIdAsync(Guid companyId)
+    {
+        var jobPosts = await _repository.GetJobPostsByCompanyIdAsync(companyId);
+        return _mapper.Map<List<JobPostDto>>(jobPosts);
+    }
+
 
     public async Task DeleteAsync(string id)
     {
@@ -72,7 +79,6 @@ public class JobPostService : IJobPostService
         string? sortBy,
         bool isDescending)
     {
-        // Fetch paginated data from the repository
         var paginatedJobs = await _repository.GetPaginatedAsync(
             pageNumber,
             pageSize,
@@ -82,11 +88,12 @@ public class JobPostService : IJobPostService
             isDescending
         );
 
-        // Map the result to DTOs
         return new PaginatedResult<JobPostDto>
         {
-            Items = _mapper.Map<IEnumerable<JobPostDto>>(paginatedJobs.Items),
-            TotalCount = paginatedJobs.TotalCount
+            Items = _mapper.Map<List<JobPostDto>>(paginatedJobs.Items),
+            TotalCount = paginatedJobs.TotalCount,
+            PageNumber = pageNumber,
+            PageSize = pageSize
         };
     }
 }

@@ -16,7 +16,7 @@ namespace SkillConnect.Data
         }
 
         // DbSets for your models
-        public DbSet<UserModel> Users { get; set; }
+        public DbSet<User> Users { get; set; }
         public DbSet<JobPost> JobPosts { get; set; }
         public DbSet<JobApplication> JobApplications { get; set; }
         public DbSet<Company> Companies { get; set; }
