@@ -1,8 +1,8 @@
 // constants/trades.ts
 export const TRADE_OPTIONS = [
-    { value: "Electrician", label: "Electrician / విద్యుత్ కార్మికుడు" },
-    { value: "Mechanic Diesel", label: "Mechanic Diesel / డీజిల్ మెకానిక్" },
-    { value: "Fitter", label: "Fitter / ఫిట్టర్" },
+    { value: "1", label: "Electrician / విద్యుత్ కార్మికుడు" },
+    { value: "2 Diesel", label: "Mechanic Diesel / డీజిల్ మెకానిక్" },
+    { value: "3", label: "Fitter / ఫిట్టర్" },
     { value: "Mechanic motor vehicle", label: "Mechanic motor vehicle / మోటార్ వాహన మెకానిక్" },
     { value: "Welder", label: "Welder / వెల్డర్" },
     { value: "MACHINIST", label: "MACHINIST / మెషినిస్ట్" },

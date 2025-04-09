@@ -27,7 +27,12 @@ namespace SkillConnect.Mappings
 
             // JobPost
             CreateMap<JobPost, JobPostDto>()
-                .ForMember(dest => dest.Trades, opt => opt.MapFrom(src => src.JobPostTrades.Select(jt => jt.Trade)));
+     .ForMember(dest => dest.Trades, opt => opt.MapFrom(src => src.JobPostTrades.Select(jt => jt.Trade)))
+     .ForMember(dest => dest.StateId, opt => opt.MapFrom(src => src.StateId))
+     .ForMember(dest => dest.StateName, opt => opt.MapFrom(src => src.State.Name))
+     .ForMember(dest => dest.DistrictId, opt => opt.MapFrom(src => src.DistrictId))
+     .ForMember(dest => dest.DistrictName, opt => opt.MapFrom(src => src.District.Name));
+
 
             CreateMap<JobPostDto, JobPost>(); // for returning data, not creating directly
 

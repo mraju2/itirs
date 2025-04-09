@@ -4,7 +4,7 @@ import { PaginatedResult } from "../types/pagination"; // adjust path as needed
 
 
 export type CompanyResponse = Company & {
-  id: number;
+  id: string;
   createdAt?: string;
   updatedAt?: string;
 };
@@ -16,6 +16,19 @@ export const companyService = {
   getAllCompanies: async (): Promise<CompanyResponse[]> => {
     return await fetchService({ method: "GET", endpoint: "/Companies" });
   },
+
+
+  /**
+ * Search companies by query string
+ * @param query - search keyword
+ */
+searchCompanies: async (query: string): Promise<{ id: string; name: string }[]> => {
+  return await fetchService({
+    method: "GET",
+    endpoint: `/Companies/search?query=${encodeURIComponent(query)}`,
+  });
+},
+
 
   /**
  * Fetch paginated companies with optional search, sorting, and filters

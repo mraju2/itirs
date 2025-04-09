@@ -67,12 +67,20 @@ builder.Services.AddScoped<IUserRepository, UserRegistrationRepository>();
 builder.Services.AddScoped<IJobApplicationRepository, JobApplicationRepository>();
 builder.Services.AddScoped<IJobPostRepository, JobPostRepository>();
 builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
+builder.Services.AddScoped<IStateRepository, StateRepository>();
+builder.Services.AddScoped<IDistrictRepository, DistrictRepository>();
+
+
 
 // Register Services
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IJobApplicationService, JobApplicationService>();
 builder.Services.AddScoped<IJobPostService, JobPostService>();
 builder.Services.AddScoped<ICompanyService, CompanyService>();
+builder.Services.AddScoped<IStateService, StateService>();
+builder.Services.AddScoped<IDistrictService, DistrictService>();
+
+
 
 // Register AutoMapper
 builder.Services.AddAutoMapper(typeof(Program).Assembly);

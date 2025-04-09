@@ -1,6 +1,6 @@
 import fetchService from "./fetch";
 import { JobPost } from "../types/jobpost";
-
+import { JobPostCreate } from "../types/JobPostCreate";
 export type JobPostResponse = JobPost & {
   id: number;
   createdAt?: string;
@@ -73,10 +73,10 @@ export const jobPostService = {
    * Create a new job post
    * @param data - JobPostDto object
    */
-  createJob: async <T = JobPostResponse>(data: JobPost): Promise<T> => {
+  createJob: async <T = JobPostResponse>(data: JobPostCreate): Promise<T> => {
     return await fetchService<T>({
       method: "POST",
-      endpoint: "/api/jobposts",
+      endpoint: "/jobposts",
       body: JSON.parse(JSON.stringify(data)),
       contentType: "application/json",
     });

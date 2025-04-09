@@ -8,15 +8,17 @@ namespace SkillConnect.Models
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
 
-
         [Required]
         public Guid CompanyId { get; set; }
 
         [Required]
-        public string JobTitle { get; set; } = null!;
+        public int StateId { get; set; } // new
 
         [Required]
-        public string District { get; set; } = null!;
+        public int DistrictId { get; set; } // changed from string District
+
+        [Required]
+        public string JobTitle { get; set; } = null!;
 
         [Required]
         public string Location { get; set; } = null!;
@@ -53,9 +55,7 @@ namespace SkillConnect.Models
 
         public int? Vacancies { get; set; } // Total positions available
 
-
         public string? FacilitiesProvided { get; set; } // e.g. "Transport, Food, Uniform, Shoe"
-
 
         [Required]
         public int WorkingHoursMin { get; set; }
@@ -78,8 +78,10 @@ namespace SkillConnect.Models
 
         // Navigation
         public Company Company { get; set; } = null!;
+
+        public State State { get; set; } = null!;
+        public District District { get; set; } = null!;
         public List<JobApplication> Applications { get; set; } = new();
         public List<JobPostTrade> JobPostTrades { get; set; } = new();
     }
-
 }

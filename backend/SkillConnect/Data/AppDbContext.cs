@@ -21,6 +21,10 @@ namespace SkillConnect.Data
         public DbSet<JobApplication> JobApplications { get; set; }
         public DbSet<Company> Companies { get; set; }
 
+        public DbSet<District> District { get; set; }
+
+        public DbSet<State> State { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Unique constraints
@@ -54,6 +58,19 @@ namespace SkillConnect.Data
                 .HasOne(j => j.Company)
                 .WithMany(c => c.JobPosts)
                 .HasForeignKey(j => j.CompanyId);
+
+            modelBuilder.Entity<JobPost>()
+.HasOne(j => j.State)
+.WithMany()
+.HasForeignKey(j => j.StateId)
+.OnDelete(DeleteBehavior.Restrict);
+
+            // JobPost → District
+            modelBuilder.Entity<JobPost>()
+                .HasOne(j => j.District)
+                .WithMany()
+                .HasForeignKey(j => j.DistrictId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             /// JobPost → JobApplication (One-to-Many)
             modelBuilder.Entity<JobApplication>()

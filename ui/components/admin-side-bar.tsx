@@ -7,7 +7,7 @@ const adminLinks = [
   { label: "Dashboard", href: "/admin/dashboard", icon: "📊" },
   { label: "Companies", href: "/admin/companies", icon: "🏭" },
   { label: "Users", href: "/admin/users", icon: "👥" },
-  { label: "Applications", href: "/admin/applications", icon: "📄" },
+  { label: "Jobs", href: "/admin/jobs", icon: "📄" },
 ];
 
 export const AdminSidebar = () => {

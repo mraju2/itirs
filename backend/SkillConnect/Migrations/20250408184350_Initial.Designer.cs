@@ -12,8 +12,8 @@ using SkillConnect.Data;
 namespace SkillConnect.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250406155924_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250408184350_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -235,9 +235,8 @@ namespace SkillConnect.Migrations
                     b.Property<long>("CreatedAtUnix")
                         .HasColumnType("bigint");
 
-                    b.Property<string>("District")
-                        .IsRequired()
-                        .HasColumnType("longtext");
+                    b.Property<int>("DistrictId")
+                        .HasColumnType("int");
 
                     b.Property<string>("EmploymentType")
                         .IsRequired()
@@ -283,6 +282,9 @@ namespace SkillConnect.Migrations
                     b.Property<decimal>("SalaryMin")
                         .HasColumnType("decimal(65,30)");
 
+                    b.Property<int>("StateId")
+                        .HasColumnType("int");
+
                     b.Property<bool>("Urgent")
                         .HasColumnType("tinyint(1)");
 
@@ -301,6 +303,10 @@ namespace SkillConnect.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CompanyId");
+
+                    b.HasIndex("DistrictId");
+
+                    b.HasIndex("StateId");
 
                     b.HasIndex("UserId");
 
@@ -607,11 +613,27 @@ namespace SkillConnect.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("SkillConnect.Models.District", "District")
+                        .WithMany()
+                        .HasForeignKey("DistrictId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SkillConnect.Models.State", "State")
+                        .WithMany()
+                        .HasForeignKey("StateId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("SkillConnect.Models.User", null)
                         .WithMany("PostedJobs")
                         .HasForeignKey("UserId");
 
                     b.Navigation("Company");
+
+                    b.Navigation("District");
+
+                    b.Navigation("State");
                 });
 
             modelBuilder.Entity("SkillConnect.Models.JobPostTrade", b =>

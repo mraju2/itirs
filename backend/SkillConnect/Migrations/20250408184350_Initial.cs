@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SkillConnect.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -186,9 +186,9 @@ namespace SkillConnect.Migrations
                 {
                     Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     CompanyId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    StateId = table.Column<int>(type: "int", nullable: false),
+                    DistrictId = table.Column<int>(type: "int", nullable: false),
                     JobTitle = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    District = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Location = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -230,6 +230,18 @@ namespace SkillConnect.Migrations
                         principalTable: "Companies",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_JobPosts_District_DistrictId",
+                        column: x => x.DistrictId,
+                        principalTable: "District",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_JobPosts_State_StateId",
+                        column: x => x.StateId,
+                        principalTable: "State",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_JobPosts_Users_UserId",
                         column: x => x.UserId,
@@ -381,6 +393,16 @@ namespace SkillConnect.Migrations
                 name: "IX_JobPosts_CompanyId",
                 table: "JobPosts",
                 column: "CompanyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_JobPosts_DistrictId",
+                table: "JobPosts",
+                column: "DistrictId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_JobPosts_StateId",
+                table: "JobPosts",
+                column: "StateId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_JobPosts_UserId",

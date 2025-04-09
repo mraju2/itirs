@@ -4,10 +4,11 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Breadcrumbs } from "../../../components/breadcrumbs";
 import { JobCard } from "../../../components/job-card";
-import { SmartSearchInput } from "../../../components/smart-search";
 import { jobPostService } from "../../../services/job-post-service";
 import { parseAdvancedSearch } from "@/utils/util";
 import { JobPost } from "../../../types/jobpost";
+import { CompanyAsyncSelect } from "../../../components/company-select";
+import Link from "next/link"; // add this import at the top
 
 const JOBS_PER_PAGE = 9;
 
@@ -16,19 +17,27 @@ const AdminJobListPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState<Record<string, string>>({});
-  const [sortField, setSortField] = useState<keyof JobPost | "createdDate">("createdDate");
+  const [sortField, setSortField] = useState<keyof JobPost | "createdDate">(
+    "createdDate"
+  );
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(
+    null
+  );
 
   const router = useRouter();
 
-  useEffect(() => {
+  const handleSearch = () => {
     const parsedFilters = parseAdvancedSearch(searchTerm);
+    if (selectedCompanyId) {
+      parsedFilters.companyId = selectedCompanyId;
+    }
     setFilters(parsedFilters);
-    setCurrentPage(1);
-  }, [searchTerm]);
+    setCurrentPage(1); // Reset to first page
+  };
 
   useEffect(() => {
     const fetchPaginatedJobs = async () => {
@@ -70,32 +79,50 @@ const AdminJobListPage = () => {
         />
 
         {/* Search + Filters */}
-        <div className="bg-white rounded-lg shadow p-3 mb-3">
-          <div className="flex flex-wrap gap-2 items-center">
-            <div className="flex-1 min-w-[300px]">
-              <SmartSearchInput
-                value={searchTerm}
-                onChange={(val) => setSearchTerm(val)}
-                keys={["title", "location", "companyName", "category", "type"]}
-                examples={[
-                  "title:welder",
-                  "location:hyderabad",
-                  "companyName:tata",
-                ]}
-              />
-            </div>
+        <div className="flex flex-wrap items-end gap-3 mb-4">
+          {/* Company Select */}
+          <div className="w-64">
+            <CompanyAsyncSelect
+              value={selectedCompanyId}
+              onChange={(val) => setSelectedCompanyId(val)}
+            />
+          </div>
+
+          {/* Search Button */}
+          <div className="mt-[22px]">
+            <button
+              type="button"
+              onClick={handleSearch}
+              className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm px-4 h-10 rounded-md"
+            >
+              Search
+            </button>
+          </div>
+
+          {/* Reset Button */}
+          <div className="mt-[22px]">
             <button
               type="button"
               onClick={() => {
                 setSearchTerm("");
                 setSortField("createdDate");
                 setSortDirection("desc");
+                setSelectedCompanyId(null);
+                setFilters({});
                 setCurrentPage(1);
               }}
-              className="bg-gradient-to-r from-indigo-600 to-blue-500 hover:from-indigo-700 hover:to-blue-600 text-white text-sm px-4 py-2 rounded-md"
+              className="bg-gradient-to-r from-indigo-600 to-blue-500 hover:from-indigo-700 hover:to-blue-600 text-white text-sm px-4 h-10 rounded-md"
             >
               Reset
             </button>
+          </div>
+          <div className="mt-[22px]">
+            <Link
+              href="/admin/jobs/new"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm px-4 h-10 rounded-md shadow flex items-center"
+            >
+              + Add Job
+            </Link>
           </div>
         </div>
 
@@ -116,7 +143,7 @@ const AdminJobListPage = () => {
               {jobs.map((job) => (
                 <div
                   key={job.id}
-                  onClick={() => handleJobClick(job.id ?? 0)}
+                  onClick={() => handleJobClick(0)}
                   className="cursor-pointer w-full"
                 >
                   <JobCard job={job} />

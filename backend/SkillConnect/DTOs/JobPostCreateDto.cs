@@ -1,15 +1,17 @@
 using System;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SkillConnect.Dtos
 {
     public class JobPostCreateDto
     {
         public Guid CompanyId { get; set; }
-        public string JobTitle { get; set; } = null!;
-        public string District { get; set; } = null!;
 
+        public int StateId { get; set; }
+        public int DistrictId { get; set; }
+        
+
+        public string JobTitle { get; set; } = null!;
         public string JobLocation { get; set; } = null!;
         public string JobDescription { get; set; } = null!;
         public string EmploymentType { get; set; } = null!;

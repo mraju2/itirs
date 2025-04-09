@@ -32,6 +32,7 @@ export const CompanyRegistrationForm: React.FC<
     formState: { errors },
     reset,
   } = useForm<FormData>();
+
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     try {
       await companyService.createCompany(data);
@@ -51,7 +52,7 @@ export const CompanyRegistrationForm: React.FC<
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow-md mt-10">
+    <div className="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow-md mt-10 text-black">
       <h2 className="text-2xl font-semibold text-center text-indigo-600 mb-6">
         Register a New Company <br />
         <span className="text-base text-gray-500">
@@ -63,10 +64,10 @@ export const CompanyRegistrationForm: React.FC<
         onSubmit={handleSubmit(onSubmit)}
         className="grid grid-cols-1 md:grid-cols-2 gap-6"
       >
+        {/* Company Name */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Company Name{" "}
-            <span className="text-gray-500 text-xs block">కంపెనీ పేరు</span>
+          <label className="block text-sm text-gray-500 mb-1">
+            Company Name <span className="block text-xs">కంపెనీ పేరు</span>
           </label>
           <input
             {...register("name", { required: "Company name is required" })}
@@ -80,10 +81,10 @@ export const CompanyRegistrationForm: React.FC<
           )}
         </div>
 
+        {/* Address */}
         <div className="md:col-span-2">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Address{" "}
-            <span className="text-gray-500 text-xs block">చిరునామా</span>
+          <label className="block text-sm text-gray-500 mb-1">
+            Address <span className="block text-xs">చిరునామా</span>
           </label>
           <textarea
             {...register("address", { required: "Address is required" })}
@@ -97,9 +98,10 @@ export const CompanyRegistrationForm: React.FC<
           )}
         </div>
 
+        {/* City */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            City <span className="text-gray-500 text-xs block">నగరం</span>
+          <label className="block text-sm text-gray-500 mb-1">
+            City <span className="block text-xs">నగరం</span>
           </label>
           <input
             {...register("city", { required: "City is required" })}
@@ -112,9 +114,10 @@ export const CompanyRegistrationForm: React.FC<
           )}
         </div>
 
+        {/* District */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            District <span className="text-gray-500 text-xs block">జిల్లా</span>
+          <label className="block text-sm text-gray-500 mb-1">
+            District <span className="block text-xs">జిల్లా</span>
           </label>
           <select
             {...register("district", { required: "District is required" })}
@@ -134,10 +137,10 @@ export const CompanyRegistrationForm: React.FC<
           )}
         </div>
 
+        {/* Pincode */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Pincode{" "}
-            <span className="text-gray-500 text-xs block">పిన్ కోడ్</span>
+          <label className="block text-sm text-gray-500 mb-1">
+            Pincode <span className="block text-xs">పిన్ కోడ్</span>
           </label>
           <input
             {...register("pincode", { required: "Pincode is required" })}
@@ -150,9 +153,10 @@ export const CompanyRegistrationForm: React.FC<
           )}
         </div>
 
+        {/* State */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            State <span className="text-gray-500 text-xs block">రాష్ట్రం</span>
+          <label className="block text-sm text-gray-500 mb-1">
+            State <span className="block text-xs">రాష్ట్రం</span>
           </label>
           <input
             {...register("state")}
@@ -162,10 +166,10 @@ export const CompanyRegistrationForm: React.FC<
           />
         </div>
 
+        {/* Contact Email */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Contact Email{" "}
-            <span className="text-gray-500 text-xs block">ఈమెయిల్</span>
+          <label className="block text-sm text-gray-500 mb-1">
+            Contact Email <span className="block text-xs">ఈమెయిల్</span>
           </label>
           <input
             type="email"
@@ -181,10 +185,10 @@ export const CompanyRegistrationForm: React.FC<
           )}
         </div>
 
+        {/* Contact Phone */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Contact Phone{" "}
-            <span className="text-gray-500 text-xs block">ఫోన్ నంబర్</span>
+          <label className="block text-sm text-gray-500 mb-1">
+            Contact Phone <span className="block text-xs">ఫోన్ నంబర్</span>
           </label>
           <input
             {...register("contactPhone", {
@@ -201,12 +205,11 @@ export const CompanyRegistrationForm: React.FC<
           )}
         </div>
 
+        {/* Website */}
         <div className="md:col-span-2">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm text-gray-500 mb-1">
             Website URL{" "}
-            <span className="text-gray-500 text-xs block">
-              వెబ్‌సైట్ (ఐచ్చికం)
-            </span>
+            <span className="block text-xs">వెబ్‌సైట్ (ఐచ్చికం)</span>
           </label>
           <input
             {...register("websiteUrl")}
@@ -215,6 +218,7 @@ export const CompanyRegistrationForm: React.FC<
           />
         </div>
 
+        {/* Submit Button */}
         <div className="md:col-span-2 flex justify-center mt-6">
           <button
             type="submit"
