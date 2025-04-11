@@ -1,16 +1,17 @@
-export interface TradeDto {
-  id: string;
-  name: string;
-  nameInTelugu?: string;
-}
+import { Trade } from './trade';
 
 export interface JobPost {
-  id: string;
-  companyId: string;
-  companyName: string;
-  jobTitle: string;
-  district: string;
+  id?: string;
 
+  companyId: string;
+  companyName?: string;
+
+  stateId: number;
+  stateName?: string;
+  districtId: number;
+  districtName?: string;
+
+  jobTitle: string;
   jobLocation: string;
   jobDescription: string;
   employmentType: string;
@@ -19,6 +20,7 @@ export interface JobPost {
 
   additionalBenefits?: string;
   genderRequirement: string;
+
   minAge: number;
   maxAge?: number;
 
@@ -26,6 +28,7 @@ export interface JobPost {
   salaryMax: number;
 
   accommodationProvided: boolean;
+
   workingHoursMin: number;
   workingHoursMax: number;
 
@@ -35,10 +38,10 @@ export interface JobPost {
   apprenticesConsidered: boolean;
   urgent: boolean;
 
-  createdAtUnix: number;
-  vacancies?: number;
+  createdAtUnix?: number;
 
+  vacancies?: number;
   facilitiesProvided?: string;
 
-  trades: TradeDto[];
+  trades: Trade[];
 }

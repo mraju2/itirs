@@ -69,6 +69,7 @@ builder.Services.AddScoped<IJobPostRepository, JobPostRepository>();
 builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
 builder.Services.AddScoped<IStateRepository, StateRepository>();
 builder.Services.AddScoped<IDistrictRepository, DistrictRepository>();
+builder.Services.AddScoped<ITradeRepository, TradeRepository>();
 
 
 
@@ -79,6 +80,8 @@ builder.Services.AddScoped<IJobPostService, JobPostService>();
 builder.Services.AddScoped<ICompanyService, CompanyService>();
 builder.Services.AddScoped<IStateService, StateService>();
 builder.Services.AddScoped<IDistrictService, DistrictService>();
+builder.Services.AddScoped<ITradeService, TradeService>();
+
 
 
 

@@ -3,6 +3,7 @@ using AutoMapper;
 using SkillConnect.Models;
 using SkillConnect.Services.Interfaces;
 using SkillConnect.Dtos;
+using System.ComponentModel.DataAnnotations;
 
 namespace SkillConnect.Services
 {
@@ -33,11 +34,11 @@ namespace SkillConnect.Services
         {
             try
             {
-                var entity = _mapper.Map<JobPost>(dto);
-                entity.CreatedAtUnix = DateTimeOffset.UtcNow.ToUnixTimeSeconds(); // set created time
-                await _repository.AddAsync(entity);
+                ValidateJobPostDto(dto);
+                var jobPost = MapToJobPostWithDefaults(dto);
+                await _repository.AddAsync(jobPost);
 
-                return _mapper.Map<JobPostDto>(entity);
+                return _mapper.Map<JobPostDto>(jobPost);
             }
             catch (InvalidOperationException ex)
             {
@@ -96,6 +97,55 @@ namespace SkillConnect.Services
                 TotalCount = paginatedJobs.TotalCount,
                 PageNumber = pageNumber,
                 PageSize = pageSize
+            };
+        }
+
+        private void ValidateJobPostDto(JobPostCreateDto dto)
+        {
+            if (dto.MaxAge.HasValue && dto.MaxAge < dto.MinAge)
+                throw new ValidationException("MaxAge must be greater than or equal to MinAge.");
+
+            if (dto.SalaryMax < dto.SalaryMin)
+                throw new ValidationException("SalaryMax must be greater than or equal to SalaryMin.");
+
+            if (dto.ExperienceMax.HasValue && dto.ExperienceMax < dto.ExperienceMin)
+                throw new ValidationException("ExperienceMax must be greater than or equal to ExperienceMin.");
+        }
+
+        private JobPost MapToJobPostWithDefaults(JobPostCreateDto dto)
+        {
+            var nowUnix = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+            return new JobPost
+            {
+                Id = Guid.NewGuid(),
+                CompanyId = dto.CompanyId,
+                StateId = dto.StateId,
+                DistrictId = dto.DistrictId,
+                JobTitle = dto.JobTitle,
+                Location = dto.JobLocation,
+                JobDescription = dto.JobDescription,
+                EmploymentType = dto.EmploymentType,
+                ApplicationProcess = dto.ApplicationProcess,
+                ApplicationDeadlineUnix = dto.ApplicationDeadlineUnix,
+                AdditionalBenefits = dto.AdditionalBenefits,
+                GenderRequirement = dto.GenderRequirement,
+                MinAge = dto.MinAge,
+                MaxAge = dto.MaxAge,
+                SalaryMin = dto.SalaryMin,
+                SalaryMax = dto.SalaryMax,
+                AccommodationProvided = dto.AccommodationProvided,
+                Vacancies = dto.Vacancies,
+                FacilitiesProvided = dto.FacilitiesProvided,
+                WorkingHoursMin = dto.WorkingHoursMin,
+                WorkingHoursMax = dto.WorkingHoursMax ?? dto.WorkingHoursMin,
+                ExperienceMin = dto.ExperienceMin,
+                ExperienceMax = dto.ExperienceMax,
+                ApprenticesConsidered = dto.ApprenticesConsidered,
+                Urgent = dto.Urgent,
+                CreatedAtUnix = nowUnix,
+                ModifiedAtUnix = null,
+                JobPostTrades = dto.TradeIds.Select(id => new JobPostTrade { TradeId = id }).ToList()
             };
         }
     }

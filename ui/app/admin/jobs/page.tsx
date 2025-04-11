@@ -1,13 +1,20 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { Breadcrumbs } from "../../../components/breadcrumbs";
-import { JobCard } from "../../../components/job-card";
 import { jobPostService } from "../../../services/job-post-service";
 import { parseAdvancedSearch } from "@/utils/util";
-import { JobPost } from "../../../types/jobpost";
-import { CompanyAsyncSelect } from "../../../components/company-select";
+import { JobPost } from "../../../types/jobPost";
+import { JobPostsTable } from "../../../components/job-posts-table";
+
+const CompanyAsyncSelect = dynamic(
+  () =>
+    import("../../../components/company-select").then(
+      (mod) => mod.CompanyAsyncSelect
+    ),
+  { ssr: false }
+);
 import Link from "next/link"; // add this import at the top
 
 const JOBS_PER_PAGE = 9;
@@ -27,8 +34,6 @@ const AdminJobListPage = () => {
   const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(
     null
   );
-
-  const router = useRouter();
 
   const handleSearch = () => {
     const parsedFilters = parseAdvancedSearch(searchTerm);
@@ -66,10 +71,6 @@ const AdminJobListPage = () => {
   }, [currentPage, filters, sortField, sortDirection]);
 
   const totalPages = Math.ceil(totalCount / JOBS_PER_PAGE);
-
-  const handleJobClick = (id: number) => {
-    router.push(`/admin/jobs/${id}`);
-  };
 
   return (
     <div className="min-h-screen bg-blue-50">
@@ -140,15 +141,25 @@ const AdminJobListPage = () => {
             <p className="text-gray-600">No job posts found.</p>
           ) : (
             <div className="space-y-4">
-              {jobs.map((job) => (
-                <div
-                  key={job.id}
-                  onClick={() => handleJobClick(0)}
-                  className="cursor-pointer w-full"
-                >
-                  <JobCard job={job} />
-                </div>
-              ))}
+              {jobs.length === 0 ? (
+                <p className="text-gray-600">No job posts found.</p>
+              ) : (
+                <JobPostsTable
+                  jobPosts={jobs}
+                  onSort={(field) => {
+                    if (sortField === field) {
+                      setSortDirection((prev) =>
+                        prev === "asc" ? "desc" : "asc"
+                      );
+                    } else {
+                      setSortField(field);
+                      setSortDirection("asc");
+                    }
+                  }}
+                  sortField="createdAtUnix"
+                  sortDirection={sortDirection}
+                />
+              )}
             </div>
           )}
 

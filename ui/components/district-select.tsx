@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import AsyncSelect from "react-select/async";
 import { districtService } from "../services/district-service";
+import { District } from "@/types/district";
 
 type OptionType = {
   label: string;
@@ -20,33 +21,48 @@ export const DistrictAsyncSelect: React.FC<Props> = ({
 }) => {
   const [selectedOption, setSelectedOption] = useState<OptionType | null>(null);
 
+  // Reset when state changes
   useEffect(() => {
-    const fetchInitial = async () => {
-      if (value !== null && stateId !== null) {
+    setSelectedOption(null);
+    onChange(null);
+  }, [stateId]);
+
+  // Set selectedOption when value is changed from parent
+  useEffect(() => {
+    const fetchSelected = async () => {
+      if (value && stateId) {
         try {
-          const res = await districtService.getDistrictById(value);
-          setSelectedOption({
-            value: res.id,
-            label: `${res.name} (${res.nameTelugu ?? ""})`,
-          });
+          const districts = await districtService.getDistrictsByStateId(
+            stateId
+          );
+          const matched = districts.find((d: District) => d.id === value);
+          if (matched) {
+            setSelectedOption({
+              value: matched.id,
+              label: `${matched.name} (${matched.nameTelugu ?? ""})`,
+            });
+          } else {
+            setSelectedOption(null);
+          }
         } catch (err) {
-          console.error("Failed to fetch district by ID", err);
+          console.error("Failed to fetch districts", err);
         }
       } else {
         setSelectedOption(null);
       }
     };
-    fetchInitial();
+
+    fetchSelected();
   }, [value, stateId]);
 
   const loadOptions = async (inputValue: string): Promise<OptionType[]> => {
     if (!stateId) return [];
     try {
-      const res = await districtService.searchDistrictsByState(
+      const districts = await districtService.searchDistrictsByState(
         stateId,
         inputValue
       );
-      return res.map((district) => ({
+      return districts.map((district: District) => ({
         label: `${district.name} (${district.nameTelugu ?? ""})`,
         value: district.id,
       }));
@@ -60,6 +76,7 @@ export const DistrictAsyncSelect: React.FC<Props> = ({
     <div className="text-sm text-gray-700">
       <label className="block mb-1 font-medium">Select District</label>
       <AsyncSelect
+        key={stateId ?? "no-state"}
         classNamePrefix="react-select"
         cacheOptions
         defaultOptions

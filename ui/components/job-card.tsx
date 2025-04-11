@@ -1,7 +1,7 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import { BriefcaseIcon, MapPinIcon, RupeeIcon, BookmarkIcon } from "../icons";
-import { JobPost } from "../types/jobpost"; // Updated DTO-based interface
+import { JobPost } from "../types/jobPost"; // Updated DTO-based interface
 
 interface JobCardProps {
   job: JobPost;

@@ -10,8 +10,11 @@ namespace SkillConnect.Mappings
         {
             // Company
             CreateMap<Company, CompanyDto>()
-                .ForMember(dest => dest.StateName, opt => opt.MapFrom(src => src.State.Name))
-                .ForMember(dest => dest.DistrictName, opt => opt.MapFrom(src => src.District.Name));
+    .ForMember(dest => dest.StateName, opt => opt.MapFrom(src => src.State.Name))
+    .ForMember(dest => dest.DistrictName, opt => opt.MapFrom(src => src.District.Name))
+    .ForMember(dest => dest.StateId, opt => opt.MapFrom(src => src.StateId))
+    .ForMember(dest => dest.DistrictId, opt => opt.MapFrom(src => src.DistrictId));
+
 
             CreateMap<CompanyCreateDto, Company>();
             CreateMap<CompanyUpdateDto, Company>();

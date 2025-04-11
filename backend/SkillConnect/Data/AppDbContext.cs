@@ -25,6 +25,9 @@ namespace SkillConnect.Data
 
         public DbSet<State> State { get; set; }
 
+        public DbSet<Trade> Trade { get; set; }
+
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Unique constraints
@@ -33,7 +36,7 @@ namespace SkillConnect.Data
                 .IsUnique();
 
             modelBuilder.Entity<Company>()
-                .HasIndex(c => c.ContactPhone)
+                .HasIndex(c => c.PrimaryContactPhone)
                 .IsUnique();
 
             // Company → State & District

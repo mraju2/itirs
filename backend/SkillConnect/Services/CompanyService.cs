@@ -34,7 +34,7 @@ namespace SkillConnect.Services
             try
             {
                 // Check for duplicate email or phone
-                var exists = await _repository.ExistsByEmailOrPhoneAsync(dto.ContactEmail, dto.ContactPhone);
+                var exists = await _repository.ExistsByEmailOrPhoneAsync(dto.ContactEmail, dto.PrimaryContactPhone);
                 if (exists)
                 {
                     throw new InvalidOperationException("A company with the same email or phone number already exists.");

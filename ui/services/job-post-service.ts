@@ -1,5 +1,5 @@
 import fetchService from "./fetch";
-import { JobPost } from "../types/jobpost";
+import { JobPost } from "../types/jobPost";
 import { JobPostCreate } from "../types/JobPostCreate";
 export type JobPostResponse = JobPost & {
   id: number;
@@ -87,7 +87,7 @@ export const jobPostService = {
    * @param id - Job post ID
    * @param data - Updated JobPostDto
    */
-  updateJob: async <T = JobPostResponse>(id: number, data: JobPost): Promise<T> => {
+  updateJob: async <T = JobPostResponse>(id: string, data: JobPost): Promise<T> => {
     return await fetchService<T>({
       method: "PUT",
       endpoint: `/api/jobposts/${id}`,

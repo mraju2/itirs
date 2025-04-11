@@ -7,26 +7,26 @@ import {
   TableBody,
   TableCell,
 } from "./table";
-import { Company } from "../types/company";
+import { JobPost } from "../types/jobPost";
 import { useRouter } from "next/navigation";
 import { Tooltip } from "./tool-tip";
 
-interface CompaniesTableProps {
-  companies: Company[];
-  onSort: (field: keyof Company) => void;
-  sortField: keyof Company | "";
+interface JobPostsTableProps {
+  jobPosts: JobPost[];
+  onSort: (field: keyof JobPost) => void;
+  sortField: keyof JobPost | "";
   sortDirection: "asc" | "desc";
 }
 
-export const CompaniesTable = ({
-  companies,
+export const JobPostsTable = ({
+  jobPosts,
   onSort,
   sortField,
   sortDirection,
-}: CompaniesTableProps) => {
+}: JobPostsTableProps) => {
   const router = useRouter();
 
-  const SortIcon = ({ field }: { field: keyof Company }) => {
+  const SortIcon = ({ field }: { field: keyof JobPost }) => {
     if (sortField !== field)
       return <span className="ml-1 text-slate-400">⇅</span>;
     return (
@@ -40,7 +40,7 @@ export const CompaniesTable = ({
     field,
     children,
   }: {
-    field: keyof Company;
+    field: keyof JobPost;
     children: React.ReactNode;
   }) => (
     <TableHead className="text-sm px-2 py-2 font-semibold bg-slate-200">
@@ -58,11 +58,11 @@ export const CompaniesTable = ({
     value,
     className = "",
   }: {
-    value: string | null | undefined;
+    value: string | number | null | undefined;
     className?: string;
   }) => (
     <TableCell
-      title={value || ""}
+      title={String(value || "")}
       className={`truncate whitespace-nowrap max-w-[160px] text-sm px-2 py-2 ${className}`}
     >
       <Tooltip content={String(value)}>
@@ -77,57 +77,46 @@ export const CompaniesTable = ({
     <Table>
       <TableHeader>
         <TableRow>
-          <SortableHeader field="id">ID</SortableHeader>
-          <SortableHeader field="name">Name</SortableHeader>
-          <SortableHeader field="contactEmail">Email</SortableHeader>
-          <SortableHeader field="primaryContactPhone">Phone</SortableHeader>
-          <SortableHeader field="address">City</SortableHeader>
-          <SortableHeader field="stateName">State</SortableHeader>
-          <SortableHeader field="districtName">District</SortableHeader>
+          <SortableHeader field="jobTitle">Job Title</SortableHeader>
+          <SortableHeader field="companyName">Company</SortableHeader>
+          <SortableHeader field="jobLocation">Location</SortableHeader>
+          <SortableHeader field="salaryMin">Salary</SortableHeader>
+          <SortableHeader field="experienceMin">Experience</SortableHeader>
           <TableHead className="text-sm px-2 py-2 font-semibold bg-slate-200">
             Actions
           </TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
-        {companies.length === 0 ? (
+        {jobPosts.length === 0 ? (
           <TableRow>
-            <TableCell colSpan={8} className="text-center text-sm py-2">
-              No companies found.
+            <TableCell colSpan={6} className="text-center text-sm py-2">
+              No job posts found.
             </TableCell>
           </TableRow>
         ) : (
-          companies.map((company) => (
-            <TableRow key={company.id} className="text-sm hover:bg-slate-100">
-              <TruncatedCell value={company.id} className="max-w-[120px]" />
-              <TruncatedCell value={company.name} className="max-w-[180px]" />
+          jobPosts.map((job) => (
+            <TableRow key={job.id} className="text-sm hover:bg-slate-100">
+              <TruncatedCell value={job.jobTitle} className="max-w-[180px]" />
+              <TruncatedCell value={job.companyName} />
+              <TruncatedCell value={job.jobLocation} />
               <TruncatedCell
-                value={company.contactEmail}
-                className="max-w-[160px]"
+                value={`₹${job.salaryMin.toLocaleString()} - ₹${job.salaryMax.toLocaleString()}`}
               />
               <TruncatedCell
-                value={company.primaryContactPhone}
-                className="max-w-[120px]"
-              />
-              <TruncatedCell
-                value={company.pincode}
-                className="max-w-[100px]"
-              />
-              <TruncatedCell
-                value={company.stateName}
-                className="max-w-[100px]"
-              />
-              <TruncatedCell
-                value={company.districtName}
-                className="max-w-[100px]"
+                value={
+                  job.experienceMin !== undefined
+                    ? `${job.experienceMin}${
+                        job.experienceMax ? ` - ${job.experienceMax}` : ""
+                      } yrs`
+                    : "-"
+                }
               />
               <TableCell className="text-sm px-2 py-2 whitespace-nowrap">
                 <div className="flex gap-2">
                   <button
                     className="text-blue-600 hover:underline"
-                    onClick={() =>
-                      router.push(`/admin/companies/edit/${company.id}`)
-                    }
+                    onClick={() => router.push(`/admin/jobs/edit/${job.id}`)}
                   >
                     Edit
                   </button>

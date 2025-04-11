@@ -60,7 +60,7 @@ namespace SkillConnect.Repositories
         public async Task<bool> ExistsByEmailOrPhoneAsync(string email, string contactPhone)
         {
             return await _context.Companies.AnyAsync(c =>
-                c.ContactEmail == email || c.ContactPhone == contactPhone);
+                c.ContactEmail == email || c.PrimaryContactPhone == contactPhone);
         }
 
         public async Task<PaginatedResult<Company>> GetPaginatedAsync(
@@ -71,7 +71,9 @@ namespace SkillConnect.Repositories
     string? sortBy,
     bool isDescending)
         {
-            var query = _context.Companies.AsQueryable();
+            var query = _context.Companies
+    .Include(c => c.State)
+    .Include(c => c.District).AsQueryable();
 
             // SearchTerm on Name field
             if (!string.IsNullOrEmpty(searchTerm))
@@ -173,7 +175,7 @@ namespace SkillConnect.Repositories
         public async Task<List<CompanySummaryDto>> SearchAsync(string query)
         {
             return await _context.Companies
-                .Where(c => c.Name.ToLower().Contains(query.ToLower()))
+                .Where(c => string.IsNullOrEmpty(query) || c.Name.ToLower().Contains(query.ToLower()))
                 .OrderBy(c => c.Name)
                 .Select(c => new CompanySummaryDto
                 {
@@ -183,6 +185,7 @@ namespace SkillConnect.Repositories
                 .Take(20)
                 .ToListAsync();
         }
+
 
     }
 }

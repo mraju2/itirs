@@ -49,7 +49,7 @@ namespace SkillConnect.Controllers
         }
 
         [HttpGet("search")]
-        public async Task<IActionResult> SearchCompanies([FromQuery] string query)
+        public async Task<IActionResult> SearchCompanies([FromQuery] string? query)
         {
             try
             {

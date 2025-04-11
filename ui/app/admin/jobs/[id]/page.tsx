@@ -1,44 +1,70 @@
-import React from "react";
-import { notFound } from "next/navigation";
-import { jobPostService } from "../../../../services/job-post-service"; // Adjust the import path if necessary
-import { JobPost } from "../../../../types/jobpost"; // Adjust the import path if necessary
+"use client";
 
-type Params = {
-  params: {
-    id: string;
-  };
-};
+import React, { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { Breadcrumbs } from "@/components/breadcrumbs";
+import { JobPostCreateForm } from "@/components/job-post-registration";
+import { jobPostService } from "@/services/job-post-service";
+import { JobPost } from "@/types/jobPost";
 
-const AdminJobDetailsPage = async ({ params }: Params) => {
-  const job: JobPost | null = await jobPostService
-    .getJobById(Number(params.id))
-    .catch(() => null);
+const JobPostEditPage = () => {
+  const { id } = useParams();
+  const router = useRouter();
 
-  if (!job) return notFound();
+  const [jobPost, setJobPost] = useState<JobPost | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!id) return;
+
+    const fetchJobPost = async () => {
+      try {
+        const result = await jobPostService.getById(id as string);
+        setJobPost(result);
+      } catch (err) {
+        console.error("Failed to fetch job post:", err);
+        setError("Unable to load job post.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchJobPost();
+  }, [id]);
+
+  const disabledFields: (keyof JobPost)[] = ["companyId", "createdAtUnix"];
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-10 bg-white shadow-md rounded-md">
-      <h1 className="text-3xl font-bold text-slate-800">{job.title}</h1>
-      <p className="text-slate-600 mt-2">{job.location}</p>
+    <div className="min-h-screen bg-blue-50 py-6 px-4">
+      <div className="max-w-5xl mx-auto">
+        <Breadcrumbs
+          items={[
+            { label: "Admin", href: "/admin" },
+            { label: "Jobs", href: "/admin/jobs" },
+            { label: "Edit Job" },
+          ]}
+        />
 
-      <div className="mt-6 text-slate-700">
-        <p className="whitespace-pre-wrap">{job.description}</p>
-      </div>
-
-      <div className="mt-6">
-        <p className="text-sm text-gray-600">
-          Salary: ₹{job.salaryFrom} - ₹{job.salaryTo}
-        </p>
-        <p className="text-sm text-gray-600">
-          Deadline: {new Date(job.applicationDeadline).toDateString()}
-        </p>
-        <p className="text-sm text-gray-600">Visibility: {job.visibility}</p>
-        <p className="text-sm text-gray-600">
-          Urgent: {job.isUrgent ? "Yes" : "No"}
-        </p>
+        {loading ? (
+          <p className="text-blue-600 text-sm animate-pulse">
+            Loading job post...
+          </p>
+        ) : error ? (
+          <p className="text-red-600 bg-red-100 px-4 py-2 rounded">{error}</p>
+        ) : jobPost ? (
+          <JobPostCreateForm
+            initialValues={jobPost}
+            isEditMode
+            disabledFields={disabledFields}
+          />
+        ) : (
+          <p className="text-gray-600">Job post not found.</p>
+        )}
       </div>
     </div>
   );
 };
 
-export default AdminJobDetailsPage;
+export default JobPostEditPage;
