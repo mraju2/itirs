@@ -63,16 +63,27 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 });
 
 // Register Repositories
-builder.Services.AddScoped<IUserRegistrationRepository, UserRegistrationRepository>();
+builder.Services.AddScoped<IUserRepository, UserRegistrationRepository>();
 builder.Services.AddScoped<IJobApplicationRepository, JobApplicationRepository>();
 builder.Services.AddScoped<IJobPostRepository, JobPostRepository>();
 builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
+builder.Services.AddScoped<IStateRepository, StateRepository>();
+builder.Services.AddScoped<IDistrictRepository, DistrictRepository>();
+builder.Services.AddScoped<ITradeRepository, TradeRepository>();
+
+
 
 // Register Services
-builder.Services.AddScoped<IUserRegistrationService, UserRegistrationService>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IJobApplicationService, JobApplicationService>();
 builder.Services.AddScoped<IJobPostService, JobPostService>();
 builder.Services.AddScoped<ICompanyService, CompanyService>();
+builder.Services.AddScoped<IStateService, StateService>();
+builder.Services.AddScoped<IDistrictService, DistrictService>();
+builder.Services.AddScoped<ITradeService, TradeService>();
+
+
+
 
 // Register AutoMapper
 builder.Services.AddAutoMapper(typeof(Program).Assembly);

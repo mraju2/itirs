@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using SkillConnect.Models;
 using SkillConnect.Services.Interfaces;
 using SkillConnect.Dtos;
 
@@ -22,12 +21,10 @@ namespace SkillConnect.Controllers
             try
             {
                 var jobPosts = await _jobPostService.GetAllAsync();
-                return Ok(jobPosts);
+                return Ok(jobPosts); // List<JobPostDto>
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                // Log the error (optional)
-                // _logger.LogError(ex, "Error occurred while fetching all job posts.");
                 return StatusCode(500, new { title = "Internal Server Error", message = "An unexpected error occurred." });
             }
         }
@@ -38,44 +35,43 @@ namespace SkillConnect.Controllers
             try
             {
                 var job = await _jobPostService.GetByIdAsync(id);
-                return job is not null ? Ok(job) : NotFound(new { title = "Not Found", message = "Job post not found." });
+                return job is not null
+                    ? Ok(job) // JobPostDto
+                    : NotFound(new { title = "Not Found", message = "Job post not found." });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                // Log the error (optional)
-                // _logger.LogError(ex, "Error occurred while fetching job post by ID.");
                 return StatusCode(500, new { title = "Internal Server Error", message = "An unexpected error occurred." });
             }
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] JobPostDto dto)
+        public async Task<IActionResult> Create([FromBody] JobPostCreateDto dto)
         {
             try
             {
                 var created = await _jobPostService.CreateAsync(dto);
-                return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
+                return CreatedAtAction(nameof(Get), new { id = created.Id }, created); // returns JobPostDto
             }
             catch (CustomException ex)
             {
                 return StatusCode(ex.StatusCode, new { title = ex.Title, message = ex.Message });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                // Log the error (optional)
-                // _logger.LogError(ex, "Error occurred while creating a job post.");
                 return StatusCode(500, new { title = "Internal Server Error", message = "An unexpected error occurred." });
             }
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(string id, [FromBody] JobPostDto dto)
+        public async Task<IActionResult> Update(string id, [FromBody] JobPostUpdateDto dto)
         {
             try
             {
-                if (id != dto.Id.ToString())
-                    return BadRequest(new { title = "Bad Request", message = "Job post ID mismatch." });
+                if (!int.TryParse(id, out var jobPostId))
+                    return BadRequest(new { title = "Invalid ID", message = "ID must be a number." });
 
+                dto.Id = jobPostId;
                 await _jobPostService.UpdateAsync(dto);
                 return NoContent();
             }
@@ -83,10 +79,8 @@ namespace SkillConnect.Controllers
             {
                 return StatusCode(ex.StatusCode, new { title = ex.Title, message = ex.Message });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                // Log the error (optional)
-                // _logger.LogError(ex, "Error occurred while updating a job post.");
                 return StatusCode(500, new { title = "Internal Server Error", message = "An unexpected error occurred." });
             }
         }
@@ -103,13 +97,26 @@ namespace SkillConnect.Controllers
             {
                 return StatusCode(ex.StatusCode, new { title = ex.Title, message = ex.Message });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                // Log the error (optional)
-                // _logger.LogError(ex, "Error occurred while deleting a job post.");
                 return StatusCode(500, new { title = "Internal Server Error", message = "An unexpected error occurred." });
             }
         }
+
+        [HttpGet("company/{companyId}")]
+        public async Task<IActionResult> GetByCompanyId(Guid companyId)
+        {
+            try
+            {
+                var jobs = await _jobPostService.GetByCompanyIdAsync(companyId);
+                return Ok(jobs);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new { title = "Internal Server Error", message = "An unexpected error occurred." });
+            }
+        }
+
 
         [HttpGet("paginated")]
         public async Task<IActionResult> GetPaginatedAsync(
@@ -130,12 +137,10 @@ namespace SkillConnect.Controllers
                     sortBy,
                     isDescending
                 );
-                return Ok(result);
+                return Ok(result); // PaginatedResult<JobPostDto>
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                // Log the error (optional)
-                //_logger.LogError(ex, "Error occurred while fetching paginated job posts.");
                 return StatusCode(500, new { title = "Internal Server Error", message = "An unexpected error occurred." });
             }
         }

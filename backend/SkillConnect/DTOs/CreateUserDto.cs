@@ -1,16 +1,10 @@
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
-namespace SkillConnect.Models
+namespace SkillConnect.Dtos
 {
-    [Table("Users")]
-    public class UserModel
+    public class CreateUserDto
     {
-        [Key]
-        public Guid Id { get; set; } = Guid.NewGuid();
-
         [Required, StringLength(100)]
         public string FirstName { get; set; }
 
@@ -23,8 +17,8 @@ namespace SkillConnect.Models
         [Required]
         public long DateOfBirth { get; set; }
 
-        [Required, StringLength(50)]
-        public string Trade { get; set; }
+        [Required]
+        public int TradeId { get; set; } // ✅ Foreign key to Trade
 
         [StringLength(100)]
         public string? OtherTrade { get; set; }
@@ -35,8 +29,11 @@ namespace SkillConnect.Models
         [Required, StringLength(50)]
         public string Mandal { get; set; }
 
-        [Required, StringLength(50)]
-        public string District { get; set; }
+        [Required]
+        public int StateId { get; set; } // ✅ New FK
+
+        [Required]
+        public int DistrictId { get; set; } // ✅ New FK
 
         [Required, Range(1950, 2025)]
         public int PassYear { get; set; }
@@ -64,15 +61,5 @@ namespace SkillConnect.Models
 
         [Required, StringLength(100)]
         public string About { get; set; }
-
-        public long RegistrationDate { get; set; }
-
-        // ✅ Navigation properties for relationships
-
-        // If the user is a recruiter/admin posting jobs
-        public List<JobPost> PostedJobs { get; set; } = new();
-
-        // If the user is a candidate applying to jobs
-        public List<JobApplication> JobApplications { get; set; } = new();
     }
 }

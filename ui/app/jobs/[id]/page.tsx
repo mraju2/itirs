@@ -1,7 +1,7 @@
 import React from "react";
 import { notFound } from "next/navigation";
 import { jobPostService } from "../../../services/job-post-service"; // Adjust the import path as necessary
-import { JobPost } from "../../../types/jobpost"; // Adjust the import path as necessaryimport { JobPostDto } from "../../../types/jobpost"; // Adjust the import path as necessary
+import { JobPost } from "../../../types/jobPost"; // Adjust the import path as necessaryimport { JobPostDto } from "../../../types/jobpost"; // Adjust the import path as necessary
 
 type Params = {
   params: {
@@ -10,7 +10,9 @@ type Params = {
 };
 
 const JobDetailsPage = async ({ params }: Params) => {
-  const job: JobPost | null = await jobPostService.getJobById(Number(params.id)).catch(() => null);
+  const job: JobPost | null = await jobPostService
+    .getJobById(Number(params.id))
+    .catch(() => null);
 
   if (!job) return notFound();
 
@@ -22,9 +24,16 @@ const JobDetailsPage = async ({ params }: Params) => {
       <div className="mt-6 text-slate-700">
         <p className="whitespace-pre-wrap">{job.description}</p>
         <div className="mt-4">
-          <p><strong>Salary:</strong> ₹{job.salaryFrom} – ₹{job.salaryTo}</p>
-          <p><strong>Urgent:</strong> {job.isUrgent ? "Yes" : "No"}</p>
-          <p><strong>Deadline:</strong> {new Date(job.applicationDeadline).toLocaleDateString()}</p>
+          <p>
+            <strong>Salary:</strong> ₹{job.salaryFrom} – ₹{job.salaryTo}
+          </p>
+          <p>
+            <strong>Urgent:</strong> {job.isUrgent ? "Yes" : "No"}
+          </p>
+          <p>
+            <strong>Deadline:</strong>{" "}
+            {new Date(job.applicationDeadline).toLocaleDateString()}
+          </p>
         </div>
       </div>
 

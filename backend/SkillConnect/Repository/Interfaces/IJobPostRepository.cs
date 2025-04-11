@@ -7,13 +7,37 @@ namespace SkillConnect.Repositories.Interfaces
 {
     public interface IJobPostRepository
     {
+        /// <summary>
+        /// Get all job posts.
+        /// </summary>
         Task<IEnumerable<JobPost>> GetAllAsync();
+
+        /// <summary>
+        /// Get a job post by its ID.
+        /// </summary>
         Task<JobPost?> GetByIdAsync(string id);
+
+        /// <summary>
+        /// Add a new job post.
+        /// </summary>
         Task AddAsync(JobPost jobPost);
+
+        /// <summary>
+        /// Update an existing job post.
+        /// </summary>
         Task UpdateAsync(JobPost jobPost);
+
+        /// <summary>
+        /// Delete a job post by its ID.
+        /// </summary>
         Task DeleteAsync(string id);
 
-        // New method for paginated, sorted, filtered, and searchable job posts
+        Task<List<JobPost>> GetJobPostsByCompanyIdAsync(Guid companyId);
+
+
+        /// <summary>
+        /// Get a paginated, searchable, sortable, and filterable list of job posts.
+        /// </summary>
         Task<PaginatedResult<JobPost>> GetPaginatedAsync(
             int pageNumber,
             int pageSize,

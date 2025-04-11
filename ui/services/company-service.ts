@@ -1,10 +1,10 @@
 import fetchService from "./fetch";
-import { Company } from "../types/company";
+import { Company,CompanyCreate } from "../types/company";
 import { PaginatedResult } from "../types/pagination"; // adjust path as needed
 
 
 export type CompanyResponse = Company & {
-  id: number;
+  id: string;
   createdAt?: string;
   updatedAt?: string;
 };
@@ -16,6 +16,19 @@ export const companyService = {
   getAllCompanies: async (): Promise<CompanyResponse[]> => {
     return await fetchService({ method: "GET", endpoint: "/Companies" });
   },
+
+
+  /**
+ * Search companies by query string
+ * @param query - search keyword
+ */
+searchCompanies: async (query: string): Promise<{ id: string; name: string }[]> => {
+  return await fetchService({
+    method: "GET",
+    endpoint: `/Companies/search?query=${encodeURIComponent(query)}`,
+  });
+},
+
 
   /**
  * Fetch paginated companies with optional search, sorting, and filters
@@ -77,7 +90,7 @@ export const companyService = {
    * Create a new company
    * @param data - Company DTO
    */
-  createCompany: async <T = CompanyResponse>(data: Company): Promise<T> => {
+  createCompany: async <T = CompanyResponse>(data: CompanyCreate): Promise<T> => {
     return await fetchService<T>({
       method: "POST",
       endpoint: "/Companies",

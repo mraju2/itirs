@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation"; // or `useParams()` from react-router-dom
 import { jobPostService } from "../services/job-post-service"; // Adjust the import path as necessary
-import { JobPost } from "../types/jobpost"; // Adjust the import path as necessary
+import { JobPost } from "../types/jobPost"; // Adjust the import path as necessary
 
 const JobDetailsPage: React.FC = () => {
   const { id } = useParams(); // e.g., /jobs/:id

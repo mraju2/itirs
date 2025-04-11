@@ -3,90 +3,150 @@ using AutoMapper;
 using SkillConnect.Models;
 using SkillConnect.Services.Interfaces;
 using SkillConnect.Dtos;
+using System.ComponentModel.DataAnnotations;
 
-public class JobPostService : IJobPostService
+namespace SkillConnect.Services
 {
-    private readonly IJobPostRepository _repository;
-    private readonly IMapper _mapper; // AutoMapper (optional but recommended)
-
-    public JobPostService(IJobPostRepository repository, IMapper mapper)
+    public class JobPostService : IJobPostService
     {
-        _repository = repository;
-        _mapper = mapper;
-    }
+        private readonly IJobPostRepository _repository;
+        private readonly IMapper _mapper;
 
-    public async Task<IEnumerable<JobPostDto>> GetAllAsync()
-    {
-        var jobs = await _repository.GetAllAsync();
-        return _mapper.Map<IEnumerable<JobPostDto>>(jobs);
-    }
-
-    public async Task<JobPostDto?> GetByIdAsync(string id)
-    {
-        var job = await _repository.GetByIdAsync(id);
-        return job == null ? null : _mapper.Map<JobPostDto>(job);
-    }
-
-    public async Task<JobPostDto> CreateAsync(JobPostDto dto)
-    {
-        try
+        public JobPostService(IJobPostRepository repository, IMapper mapper)
         {
-
-            var entity = _mapper.Map<JobPost>(dto);
-            await _repository.AddAsync(entity); // Make sure this includes SaveChangesAsync
-
-            return _mapper.Map<JobPostDto>(entity);
+            _repository = repository;
+            _mapper = mapper;
         }
-        catch (InvalidOperationException ex)
+
+        public async Task<IEnumerable<JobPostDto>> GetAllAsync()
         {
-            Console.WriteLine(ex.Message);
-            // Optional: _logger.LogWarning(ex, "Validation failed while creating job post");
-            throw new CustomException("Validation Error", ex.Message, 400);
+            var jobs = await _repository.GetAllAsync();
+            return _mapper.Map<IEnumerable<JobPostDto>>(jobs);
         }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.Message);
 
-            // Optional: _logger.LogError(ex, "Unexpected error during job post creation");
-            throw new CustomException("Internal Server Error", "An unexpected error occurred.", 500);
+        public async Task<JobPostDto?> GetByIdAsync(string id)
+        {
+            var job = await _repository.GetByIdAsync(id);
+            return job == null ? null : _mapper.Map<JobPostDto>(job);
         }
-    }
 
-
-    public async Task UpdateAsync(JobPostDto dto)
-    {
-        var entity = _mapper.Map<JobPost>(dto);
-        await _repository.UpdateAsync(entity);
-    }
-
-    public async Task DeleteAsync(string id)
-    {
-        await _repository.DeleteAsync(id);
-    }
-
-    public async Task<PaginatedResult<JobPostDto>> GetPaginatedAsync(
-        int pageNumber,
-        int pageSize,
-        string? searchTerm,
-        Dictionary<string, string>? filters,
-        string? sortBy,
-        bool isDescending)
-    {
-        // Fetch paginated data from the repository
-        var paginatedJobs = await _repository.GetPaginatedAsync(
-            pageNumber,
-            pageSize,
-            searchTerm,
-            filters,
-            sortBy,
-            isDescending
-        );
-
-        // Map the result to DTOs
-        return new PaginatedResult<JobPostDto>
+        public async Task<JobPostDto> CreateAsync(JobPostCreateDto dto)
         {
-            Items = _mapper.Map<IEnumerable<JobPostDto>>(paginatedJobs.Items),
-            TotalCount = paginatedJobs.TotalCount
-        };
+            try
+            {
+                ValidateJobPostDto(dto);
+                var jobPost = MapToJobPostWithDefaults(dto);
+                await _repository.AddAsync(jobPost);
+
+                return _mapper.Map<JobPostDto>(jobPost);
+            }
+            catch (InvalidOperationException ex)
+            {
+                Console.WriteLine(ex.Message);
+                throw new CustomException("Validation Error", ex.Message, 400);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                throw new CustomException("Internal Server Error", "An unexpected error occurred.", 500);
+            }
+        }
+
+        public async Task UpdateAsync(JobPostUpdateDto dto)
+        {
+            var existing = await _repository.GetByIdAsync(dto.Id.ToString());
+            if (existing == null)
+                throw new CustomException("Not Found", "Job post not found", 404);
+
+            var updated = _mapper.Map(dto, existing);
+            await _repository.UpdateAsync(updated);
+        }
+
+        public async Task<List<JobPostDto>> GetByCompanyIdAsync(Guid companyId)
+        {
+            var jobPosts = await _repository.GetJobPostsByCompanyIdAsync(companyId);
+            return _mapper.Map<List<JobPostDto>>(jobPosts);
+        }
+
+
+        public async Task DeleteAsync(string id)
+        {
+            await _repository.DeleteAsync(id);
+        }
+
+        public async Task<PaginatedResult<JobPostDto>> GetPaginatedAsync(
+            int pageNumber,
+            int pageSize,
+            string? searchTerm,
+            Dictionary<string, string>? filters,
+            string? sortBy,
+            bool isDescending)
+        {
+            var paginatedJobs = await _repository.GetPaginatedAsync(
+                pageNumber,
+                pageSize,
+                searchTerm,
+                filters,
+                sortBy,
+                isDescending
+            );
+
+            return new PaginatedResult<JobPostDto>
+            {
+                Items = _mapper.Map<List<JobPostDto>>(paginatedJobs.Items),
+                TotalCount = paginatedJobs.TotalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+        }
+
+        private void ValidateJobPostDto(JobPostCreateDto dto)
+        {
+            if (dto.MaxAge.HasValue && dto.MaxAge < dto.MinAge)
+                throw new ValidationException("MaxAge must be greater than or equal to MinAge.");
+
+            if (dto.SalaryMax < dto.SalaryMin)
+                throw new ValidationException("SalaryMax must be greater than or equal to SalaryMin.");
+
+            if (dto.ExperienceMax.HasValue && dto.ExperienceMax < dto.ExperienceMin)
+                throw new ValidationException("ExperienceMax must be greater than or equal to ExperienceMin.");
+        }
+
+        private JobPost MapToJobPostWithDefaults(JobPostCreateDto dto)
+        {
+            var nowUnix = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+            return new JobPost
+            {
+                Id = Guid.NewGuid(),
+                CompanyId = dto.CompanyId,
+                StateId = dto.StateId,
+                DistrictId = dto.DistrictId,
+                JobTitle = dto.JobTitle,
+                Location = dto.JobLocation,
+                JobDescription = dto.JobDescription,
+                EmploymentType = dto.EmploymentType,
+                ApplicationProcess = dto.ApplicationProcess,
+                ApplicationDeadlineUnix = dto.ApplicationDeadlineUnix,
+                AdditionalBenefits = dto.AdditionalBenefits,
+                GenderRequirement = dto.GenderRequirement,
+                MinAge = dto.MinAge,
+                MaxAge = dto.MaxAge,
+                SalaryMin = dto.SalaryMin,
+                SalaryMax = dto.SalaryMax,
+                AccommodationProvided = dto.AccommodationProvided,
+                Vacancies = dto.Vacancies,
+                FacilitiesProvided = dto.FacilitiesProvided,
+                WorkingHoursMin = dto.WorkingHoursMin,
+                WorkingHoursMax = dto.WorkingHoursMax ?? dto.WorkingHoursMin,
+                ExperienceMin = dto.ExperienceMin,
+                ExperienceMax = dto.ExperienceMax,
+                ApprenticesConsidered = dto.ApprenticesConsidered,
+                Urgent = dto.Urgent,
+                CreatedAtUnix = nowUnix,
+                ModifiedAtUnix = null,
+                JobPostTrades = dto.TradeIds.Select(id => new JobPostTrade { TradeId = id }).ToList()
+            };
+        }
     }
 }

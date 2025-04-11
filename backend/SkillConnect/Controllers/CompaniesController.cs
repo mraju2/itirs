@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SkillConnect.Models;
 using SkillConnect.Services.Interfaces;
+using SkillConnect.Dtos;
 
 namespace SkillConnect.Controllers
 {
@@ -36,7 +37,7 @@ namespace SkillConnect.Controllers
         {
             try
             {
-                var company = await _companyService.GetByIdAsync(id);
+                CompanyDto company = await _companyService.GetByIdAsync(id);
                 return company is not null ? Ok(company) : NotFound(new { title = "Not Found", message = "Company not found." });
             }
             catch (Exception ex)
@@ -48,7 +49,7 @@ namespace SkillConnect.Controllers
         }
 
         [HttpGet("search")]
-        public async Task<IActionResult> SearchCompanies([FromQuery] string query)
+        public async Task<IActionResult> SearchCompanies([FromQuery] string? query)
         {
             try
             {
@@ -63,7 +64,7 @@ namespace SkillConnect.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> CreateAsync([FromBody] CompanyDto dto)
+        public async Task<IActionResult> CreateAsync([FromBody] CompanyCreateDto dto)
         {
             try
             {
@@ -83,11 +84,11 @@ namespace SkillConnect.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(string id, [FromBody] CompanyDto dto)
+        public async Task<IActionResult> Update(string id, [FromBody] CompanyUpdateDto dto)
         {
             try
             {
-                if (id != dto.Id)
+                if (id != dto.Id.ToString())
                     return BadRequest(new { title = "Bad Request", message = "Company ID mismatch." });
 
                 await _companyService.UpdateAsync(dto);

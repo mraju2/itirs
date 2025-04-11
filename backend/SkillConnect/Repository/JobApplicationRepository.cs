@@ -67,5 +67,14 @@ namespace SkillConnect.Repositories
                 await _context.SaveChangesAsync();
             }
         }
+
+        public async Task<List<JobApplication>> GetByJobPostIdAsync(Guid jobPostId)
+        {
+            return await _context.JobApplications
+                .Include(a => a.JobPost)
+                .Where(a => a.JobPostId == jobPostId)
+                .ToListAsync();
+        }
+
     }
 }

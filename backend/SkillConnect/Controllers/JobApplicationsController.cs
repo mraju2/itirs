@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SkillConnect.Models;
 using SkillConnect.Services.Interfaces;
+using SkillConnect.Dtos;
 
 namespace SkillConnect.Controllers
 {
@@ -30,20 +31,27 @@ namespace SkillConnect.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> ApplyToJob([FromBody] JobApplicationDto dto)
+        public async Task<IActionResult> ApplyToJob([FromBody] JobApplicationCreateDto dto)
         {
             await _applicationService.ApplyAsync(dto);
             return Ok(new { message = "Application submitted successfully." });
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] JobApplicationDto dto)
-        {
-            if (dto.Id != id)
-                return BadRequest("ID mismatch.");
 
-            await _applicationService.UpdateAsync(dto);
-            return NoContent();
+
+        [HttpGet("job/{jobPostId}")]
+        public async Task<IActionResult> GetByJobPostId(Guid jobPostId)
+        {
+            try
+            {
+                var applications = await _applicationService.GetByJobPostIdAsync(jobPostId);
+                return Ok(applications);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new { title = "Internal Server Error", message = "An unexpected error occurred." });
+            }
         }
+
     }
 }

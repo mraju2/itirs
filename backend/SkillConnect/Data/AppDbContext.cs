@@ -16,10 +16,17 @@ namespace SkillConnect.Data
         }
 
         // DbSets for your models
-        public DbSet<UserModel> Users { get; set; }
+        public DbSet<User> Users { get; set; }
         public DbSet<JobPost> JobPosts { get; set; }
         public DbSet<JobApplication> JobApplications { get; set; }
         public DbSet<Company> Companies { get; set; }
+
+        public DbSet<District> District { get; set; }
+
+        public DbSet<State> State { get; set; }
+
+        public DbSet<Trade> Trade { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -29,7 +36,7 @@ namespace SkillConnect.Data
                 .IsUnique();
 
             modelBuilder.Entity<Company>()
-                .HasIndex(c => c.ContactPhone)
+                .HasIndex(c => c.PrimaryContactPhone)
                 .IsUnique();
 
             // Company → State & District
@@ -54,6 +61,19 @@ namespace SkillConnect.Data
                 .HasOne(j => j.Company)
                 .WithMany(c => c.JobPosts)
                 .HasForeignKey(j => j.CompanyId);
+
+            modelBuilder.Entity<JobPost>()
+.HasOne(j => j.State)
+.WithMany()
+.HasForeignKey(j => j.StateId)
+.OnDelete(DeleteBehavior.Restrict);
+
+            // JobPost → District
+            modelBuilder.Entity<JobPost>()
+                .HasOne(j => j.District)
+                .WithMany()
+                .HasForeignKey(j => j.DistrictId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             /// JobPost → JobApplication (One-to-Many)
             modelBuilder.Entity<JobApplication>()

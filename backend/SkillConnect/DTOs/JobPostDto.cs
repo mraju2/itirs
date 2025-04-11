@@ -6,11 +6,19 @@ namespace SkillConnect.Dtos
 {
     public class JobPostDto
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
+
         public Guid CompanyId { get; set; }
         public string CompanyName { get; set; } = null!;
+
+        public int StateId { get; set; }
+        public string StateName { get; set; } = null!;
+
+        public int DistrictId { get; set; }
+        public string DistrictName { get; set; } = null!;
+
         public string JobTitle { get; set; } = null!;
-        public string District { get; set; } = null!;
+        public string JobLocation { get; set; } = null!;
         public string JobDescription { get; set; } = null!;
         public string EmploymentType { get; set; } = null!;
         public string ApplicationProcess { get; set; } = null!;
@@ -29,6 +37,9 @@ namespace SkillConnect.Dtos
         public bool ApprenticesConsidered { get; set; }
         public bool Urgent { get; set; }
         public long CreatedAtUnix { get; set; }
+
+        public int? Vacancies { get; set; }
+        public string? FacilitiesProvided { get; set; }
 
         public List<TradeDto> Trades { get; set; } = new();
     }

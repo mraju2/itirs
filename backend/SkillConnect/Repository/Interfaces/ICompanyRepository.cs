@@ -1,3 +1,4 @@
+using SkillConnect.Dtos;
 using SkillConnect.Models;
 
 namespace SkillConnect.Repositories.Interfaces

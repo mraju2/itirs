@@ -1,14 +1,35 @@
 export interface Company {
-    id?: number; // Optional when creating a new company
-    name: string;
-    address: string;
-    city: string;
-    state: string;
-    pincode: string;
-    contactEmail: string;
-    contactPhone: string;
-    websiteUrl?: string;
-    logoUrl?: string;
-    district: string;
-  }
-  
+  id?: string;
+
+  name: string;
+  address: string;
+  stateId: number;
+  stateName?: string;
+  stateNameTelugu?: string;
+
+  districtId: number;
+  districtName?: string;
+  districtNameTelugu?: string;
+
+  pincode: string;
+
+  contactEmail: string;
+  primaryContactPhone: string;
+  secondaryContactPhone?: string;
+
+  websiteUrl: string;
+  locationDetails?: string;
+
+  country?: string; // default: "India"
+  createdAtUnix?: number;
+  updatedAtUnix?: number;
+}
+
+export type CompanyCreate = Omit<
+  Company,
+  "id" | "stateName" | "districtName" | "stateNameTelugu" | "districtNameTelugu" | "createdAtUnix" | "updatedAtUnix"
+>;
+
+export type CompanyUpdate = Partial<Company>;
+
+export type CompanyView = Company;

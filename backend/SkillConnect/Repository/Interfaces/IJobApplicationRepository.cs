@@ -11,5 +11,8 @@ namespace SkillConnect.Repositories.Interfaces
         Task AddAsync(JobApplication application);
         Task UpdateAsync(JobApplication application);
         Task DeleteAsync(string id);
+
+        Task<List<JobApplication>> GetByJobPostIdAsync(Guid jobPostId);
+
     }
 }

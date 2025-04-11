@@ -1,12 +1,13 @@
-
+using SkillConnect.Dtos;
+using System.Collections.Generic;
 namespace SkillConnect.Services.Interfaces
 {
     public interface ICompanyService
     {
         Task<IEnumerable<CompanyDto>> GetAllAsync();
         Task<CompanyDto?> GetByIdAsync(string id);
-        Task<CompanyDto> CreateAsync(CompanyDto dto);
-        Task UpdateAsync(CompanyDto dto);
+        Task<CompanyDto> CreateAsync(CompanyCreateDto dto);
+        Task UpdateAsync(CompanyUpdateDto dto);
         Task DeleteAsync(string id);
         Task<PaginatedResult<CompanyDto>> GetPaginatedAsync(
                    int pageNumber,

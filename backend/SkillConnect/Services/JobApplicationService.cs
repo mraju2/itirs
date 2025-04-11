@@ -1,4 +1,5 @@
 using AutoMapper;
+using SkillConnect.Dtos;
 using SkillConnect.Models;
 using SkillConnect.Repositories.Interfaces;
 using SkillConnect.Services.Interfaces;
@@ -40,17 +41,18 @@ namespace SkillConnect.Services
             return _mapper.Map<IEnumerable<JobApplicationDto>>(apps);
         }
 
-        public async Task ApplyAsync(JobApplicationDto dto)
+        public async Task ApplyAsync(JobApplicationCreateDto dto)
         {
             var entity = _mapper.Map<JobApplication>(dto);
             entity.AppliedAtUnix = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds();
             await _repository.AddAsync(entity);
         }
 
-        public async Task UpdateAsync(JobApplicationDto dto)
+        public async Task<List<JobApplicationDto>> GetByJobPostIdAsync(Guid jobPostId)
         {
-            var entity = _mapper.Map<JobApplication>(dto);
-            await _repository.UpdateAsync(entity);
+            var applications = await _repository.GetByJobPostIdAsync(jobPostId);
+            return _mapper.Map<List<JobApplicationDto>>(applications);
         }
+
     }
 }
