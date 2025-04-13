@@ -1,6 +1,8 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using SkillConnect.Models.Enums;
+
 
 namespace SkillConnect.Dtos
 {
@@ -40,6 +42,8 @@ namespace SkillConnect.Dtos
 
         public int? Vacancies { get; set; }
         public string? FacilitiesProvided { get; set; }
+
+        public JobPostStatus Status { get; set; }
 
         public List<TradeDto> Trades { get; set; } = new();
     }

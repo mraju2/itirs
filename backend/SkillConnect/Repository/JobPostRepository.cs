@@ -44,9 +44,13 @@ namespace SkillConnect.Repositories
 
         public async Task UpdateAsync(JobPost jobPost)
         {
-            _context.JobPosts.Update(jobPost);
+            _context.JobPosts.Update(jobPost); // optional — EF will already track it
             await _context.SaveChangesAsync();
         }
+
+
+
+
 
         public async Task DeleteAsync(string id)
         {

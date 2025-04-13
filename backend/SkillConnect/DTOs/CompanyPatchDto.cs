@@ -28,6 +28,5 @@ namespace SkillConnect.Dtos
 
         public string? LocationDetails { get; set; }
 
-        public string? Country { get; set; }
     }
 }

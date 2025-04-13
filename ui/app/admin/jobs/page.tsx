@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { Breadcrumbs } from "../../../components/breadcrumbs";
 import { jobPostService } from "../../../services/job-post-service";
 import { parseAdvancedSearch } from "@/utils/util";
-import { JobPost } from "../../../types/jobPost";
+import { JobPost } from "../../../types/jobpost";
 import { JobPostsTable } from "../../../components/job-posts-table";
 
 const CompanyAsyncSelect = dynamic(

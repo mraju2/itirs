@@ -1,9 +1,11 @@
 "use client";
 import dynamic from "next/dynamic";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { toast } from "react-toastify";
 import { jobPostService } from "@/services/job-post-service";
+import { ToastProvider } from "./toast-provider";
+import { JobPostCreate } from "@/types/jobpost";
 const CompanyAsyncSelect = dynamic(
   () => import("./company-select").then((mod) => mod.CompanyAsyncSelect),
   { ssr: false }
@@ -24,7 +26,7 @@ const DistrictAsyncSelect = dynamic(
 interface JobPostFormData {
   companyId: string;
   jobTitle: string;
-  districtId: string;
+  districtId: number;
   stateId: string;
   jobLocation: string;
   jobDescription: string;
@@ -64,61 +66,101 @@ export const JobPostCreateForm: React.FC = () => {
       accommodationProvided: false,
       apprenticesConsidered: false,
       genderRequirement: "Any",
+      minAge: 18,
+      maxAge: 35,
+      experienceMin: 0,
+      experienceMax: 3,
+      workingHoursMin: 9,
+      workingHoursMax: 6,
     },
   });
+
+  useEffect(() => {
+    if (districtId !== null) {
+      setValue("districtId", districtId);
+    }
+  }, [districtId, setValue]);
+
+  useEffect(() => {
+    if (!stateId) {
+      setDistrictId(null); // Reset districtId if stateId is cleared
+      setValue("districtId", 0);
+    }
+  }, [stateId, setValue]);
 
   const onSubmit: SubmitHandler<JobPostFormData> = async (data) => {
     try {
       if (!stateId || !districtId || !companyId) {
+        console.error("Missing IDs", stateId, districtId, companyId);
         toast.error("Please complete all required fields");
         return;
       }
 
-      if (data.maxAge && data.maxAge < data.minAge) {
-        toast.error("Max age must be greater than or equal to Min age");
-        return;
-      }
-
-      if (data.salaryMax < data.salaryMin) {
-        toast.error("Max salary must be greater than or equal to Min salary");
-        return;
-      }
-
-      if (data.experienceMax && data.experienceMax < data.experienceMin) {
-        toast.error(
-          "Max experience must be greater than or equal to Min experience"
-        );
-        return;
-      }
-
-      if (data.workingHoursMax && data.workingHoursMax < data.workingHoursMin) {
-        toast.error(
-          "Max working hours must be greater than or equal to Min hours"
-        );
-        return;
-      }
-
-      const payload = {
-        ...data,
-        stateId,
-        districtId,
-        companyId,
+      const payload: JobPostCreate = {
+        jobTitle: data.jobTitle,
+        companyId: companyId,
+        stateId: stateId,
+        districtId: districtId,
+        jobLocation: data.jobLocation,
+        jobDescription: data.jobDescription,
+        employmentType: data.employmentType,
+        applicationProcess: data.applicationProcess,
         applicationDeadlineUnix: Math.floor(
           new Date(data.applicationDeadline).getTime() / 1000
         ),
+        additionalBenefits: data.additionalBenefits,
+        genderRequirement: data.genderRequirement,
+        minAge: data.minAge,
+        maxAge: data.maxAge,
+        salaryMin: data.salaryMin,
+        salaryMax: data.salaryMax,
+        accommodationProvided: data.accommodationProvided,
+        workingHoursMin: data.workingHoursMin,
+        workingHoursMax: data.workingHoursMax,
+        experienceMin: data.experienceMin,
+        experienceMax: data.experienceMax,
+        apprenticesConsidered: data.apprenticesConsidered,
+        urgent: data.urgent,
+        tradeIds: data.tradeIds,
       };
+
+      console.log("Payload before submission:", payload);
 
       await jobPostService.createJob(payload);
       toast.success("Job posted successfully!");
-      reset();
-      setStateId(null);
-      setDistrictId(null);
-      setCompanyId(null);
+
+      // Reset the form, but keep selected district/state
+      reset({
+        jobTitle: "",
+        jobLocation: "",
+        jobDescription: "",
+        employmentType: "",
+        applicationProcess: "",
+        applicationDeadline: "",
+        additionalBenefits: "",
+        genderRequirement: "Any",
+        minAge: undefined,
+        maxAge: undefined,
+        salaryMin: undefined,
+        salaryMax: undefined,
+        accommodationProvided: false,
+        workingHoursMin: undefined,
+        workingHoursMax: undefined,
+        experienceMin: undefined,
+        experienceMax: undefined,
+        apprenticesConsidered: false,
+        urgent: false,
+        tradeIds: [],
+      });
+
+      setValue("districtId", districtId);
+      setValue("stateId", String(stateId));
     } catch (err) {
       console.error("Error creating job post:", err);
       toast.error("Failed to create job post.");
     }
   };
+
   // Common form element classes for consistency - FIXED TEXT COLOR IN INPUTS
   const labelClass = "block text-sm font-medium text-gray-700 mb-1";
   const teluguClass = "block text-xs text-gray-500";
@@ -136,7 +178,6 @@ export const JobPostCreateForm: React.FC = () => {
           ఉద్యోగాన్ని పోస్ట్ చేయండి
         </span>
       </h1>
-
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
         {/* Basic Job Information Section */}
         <div className={sectionClass}>
@@ -255,7 +296,11 @@ export const JobPostCreateForm: React.FC = () => {
               <DistrictAsyncSelect
                 stateId={stateId}
                 value={districtId}
-                onChange={(id) => setDistrictId(id)}
+                onChange={(id) => {
+                  console.log("Selected District ID:", id);
+                  setDistrictId(id);
+                  setValue("districtId", Number(id)); // Sync with form data
+                }}
               />
               {errors.districtId && (
                 <p className={errorClass}>{errors.districtId.message}</p>
@@ -265,8 +310,7 @@ export const JobPostCreateForm: React.FC = () => {
             {/* Specific Location */}
             <div className="md:col-span-2">
               <label className={labelClass}>
-                Specific Location{" "}
-                <span className={teluguClass}>ఉద్యోగం స్థలం</span>
+                Job Location <span className={teluguClass}>ఉద్యోగం స్థలం</span>
               </label>
               <input
                 {...register("jobLocation", {
@@ -567,6 +611,7 @@ export const JobPostCreateForm: React.FC = () => {
           </button>
         </div>
       </form>
+      <ToastProvider></ToastProvider>{" "}
     </div>
   );
 };

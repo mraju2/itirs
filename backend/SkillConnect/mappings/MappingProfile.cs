@@ -38,6 +38,10 @@ namespace SkillConnect.Mappings
 
 
             CreateMap<JobPostDto, JobPost>(); // for returning data, not creating directly
+            CreateMap<JobPostUpdateDto, JobPost>()
+    .ForMember(dest => dest.Id, opt => opt.MapFrom(src => Guid.Parse(src.Id.ToString())))
+    .ForMember(dest => dest.JobPostTrades, opt => opt.Ignore()); // You may handle trades manually if needed
+
 
             // JobApplication
             CreateMap<JobApplication, JobApplicationDto>();

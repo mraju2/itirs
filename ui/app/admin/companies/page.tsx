@@ -89,54 +89,52 @@ const CompaniesPage = () => {
           items={[{ label: "Admin", href: "/admin" }, { label: "Companies" }]}
         />
 
-<div className="bg-white rounded-lg shadow p-3 mb-3">
-  <div className="flex flex-wrap gap-2 items-center">
-    <div className="flex-1 min-w-[300px]">
-      <SmartSearchInput
-        value={searchTerm}
-        onChange={(val) => setSearchTerm(val)}
-        keys={[
-          "name",
-          "email",
-          "city",
-          "pincode",
-          "country",
-          "contactPhone",
-          "district",
-        ]}
-        examples={[
-          "name:tata",
-          "city:mumbai",
-          "email:info@tata.com",
-          "pincode:400001",
-        ]}
-      />
-    </div>
+        <div className="bg-white rounded-lg shadow p-3 mb-3">
+          <div className="flex flex-wrap gap-2 items-center">
+            <div className="flex-1 min-w-[300px]">
+              <SmartSearchInput
+                value={searchTerm}
+                onChange={(val) => setSearchTerm(val)}
+                keys={[
+                  "name",
+                  "email",
+                  "city",
+                  "pincode",
+                  "contactPhone",
+                  "district",
+                ]}
+                examples={[
+                  "name:tata",
+                  "city:mumbai",
+                  "email:info@tata.com",
+                  "pincode:400001",
+                ]}
+              />
+            </div>
 
-    <button
-      type="button"
-      onClick={() => {
-        setSearchTerm("");
-        setSortField("");
-        setSortDirection("asc");
-        setCurrentPage(1);
-      }}
-      className="bg-gradient-to-r from-indigo-600 to-blue-500 hover:from-indigo-700 hover:to-blue-600 text-white text-sm px-4 py-2 rounded-md"
-    >
-      Reset
-    </button>
+            <button
+              type="button"
+              onClick={() => {
+                setSearchTerm("");
+                setSortField("");
+                setSortDirection("asc");
+                setCurrentPage(1);
+              }}
+              className="bg-gradient-to-r from-indigo-600 to-blue-500 hover:from-indigo-700 hover:to-blue-600 text-white text-sm px-4 py-2 rounded-md"
+            >
+              Reset
+            </button>
 
-    <button
-      type="button"
-      onClick={() => router.push("/admin/companies/new")}
-      className="flex items-center gap-1 bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-2 rounded-md"
-    >
-      <PlusIcon />
-      Add Company
-    </button>
-  </div>
-</div>
-
+            <button
+              type="button"
+              onClick={() => router.push("/admin/companies/new")}
+              className="flex items-center gap-1 bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-2 rounded-md"
+            >
+              <PlusIcon />
+              Add Company
+            </button>
+          </div>
+        </div>
 
         <div className="bg-white rounded-lg shadow overflow-hidden">
           <div className="p-4">

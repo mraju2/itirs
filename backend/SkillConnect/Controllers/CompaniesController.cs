@@ -84,13 +84,11 @@ namespace SkillConnect.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(string id, [FromBody] CompanyUpdateDto dto)
+        public async Task<IActionResult> Update(Guid id, [FromBody] CompanyUpdateDto dto)
         {
             try
             {
-                if (id != dto.Id.ToString())
-                    return BadRequest(new { title = "Bad Request", message = "Company ID mismatch." });
-
+                dto.Id = id;
                 await _companyService.UpdateAsync(dto);
                 return NoContent();
             }

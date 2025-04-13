@@ -1,5 +1,5 @@
 import fetchService from "./fetch";
-import { Company,CompanyCreate } from "../types/company";
+import { Company,CompanyCreate, CompanyUpdate } from "../types/company";
 import { PaginatedResult } from "../types/pagination"; // adjust path as needed
 
 
@@ -104,10 +104,10 @@ searchCompanies: async (query: string): Promise<{ id: string; name: string }[]> 
    * @param id - Company ID
    * @param data - Company DTO
    */
-  updateCompany: async <T = CompanyResponse>(id: string, data: Company): Promise<T> => {
+  updateCompany: async <T = CompanyResponse>(id: string, data: CompanyUpdate): Promise<T> => {
     return await fetchService<T>({
       method: "PUT",
-      endpoint: `/api/Companies/${id}`,
+      endpoint: `/Companies/${id}`,
       body: JSON.parse(JSON.stringify(data)),
       contentType: "application/json",
     });

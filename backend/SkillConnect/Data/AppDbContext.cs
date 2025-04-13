@@ -27,6 +27,8 @@ namespace SkillConnect.Data
 
         public DbSet<Trade> Trade { get; set; }
 
+        public DbSet<JobPostTrade> JobPostTrade { get; set; }        
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

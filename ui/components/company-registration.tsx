@@ -1,11 +1,12 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { companyService } from "../services/company-service";
+import { CompanyCreate } from "@/types/company";
+import { ToastProvider } from "./toast-provider";
 const StateAsyncSelect = dynamic(
   () => import("./state-select").then((mod) => mod.StateAsyncSelect),
   { ssr: false }
@@ -14,37 +15,6 @@ const DistrictAsyncSelect = dynamic(
   () => import("./district-select").then((mod) => mod.DistrictAsyncSelect),
   { ssr: false }
 );
-export interface Company {
-  id?: string;
-  name: string;
-  address: string;
-  stateId: number;
-  stateName?: string;
-  stateNameTelugu?: string;
-  districtId: number;
-  districtName?: string;
-  districtNameTelugu?: string;
-  pincode: string;
-  contactEmail: string;
-  primaryContactPhone: string;
-  secondaryContactPhone?: string;
-  websiteUrl: string;
-  locationDetails?: string;
-  country?: string; // default: "India"
-  createdAtUnix?: number;
-  updatedAtUnix?: number;
-}
-
-export type CompanyCreate = Omit<
-  Company,
-  | "id"
-  | "stateName"
-  | "districtName"
-  | "stateNameTelugu"
-  | "districtNameTelugu"
-  | "createdAtUnix"
-  | "updatedAtUnix"
->;
 
 interface CompanyRegistrationFormProps {
   onSuccess?: () => void;
@@ -62,16 +32,24 @@ export const CompanyRegistrationForm: React.FC<
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
     reset,
   } = useForm<CompanyCreate>({
     defaultValues: {
-      country: "India",
       stateId: 1, // Assuming 1 is for Andhra Pradesh
       websiteUrl: "",
       secondaryContactPhone: "",
       locationDetails: "",
     },
   });
+
+  useEffect(() => {
+    // This ensures the district is set after state is loaded
+    if (stateId && districtId) {
+      setDistrictId(districtId);
+      setValue("districtId", districtId);
+    }
+  }, [districtId, setValue, stateId]);
 
   const onSubmit: SubmitHandler<CompanyCreate> = async (data) => {
     if (!stateId || !districtId) {
@@ -86,14 +64,12 @@ export const CompanyRegistrationForm: React.FC<
         stateId,
         districtId, // ✅ inject districtId here
       };
-      console.log("Submitting company data:", payload);
       await companyService.createCompany(payload);
-      toast.success("Company registered successfully!", {
-        position: "top-right",
-        autoClose: 3000,
+      toast.success("Company registered!", {
+        position: window.innerWidth < 640 ? "bottom-center" : "top-right",
       });
       reset();
-      setStateId(null);
+      setStateId(1); // default back to AP
       setDistrictId(null);
       onSuccess?.();
     } catch (error) {
@@ -115,7 +91,6 @@ export const CompanyRegistrationForm: React.FC<
           కొత్త కంపెనీని నమోదు చేయండి
         </span>
       </h2>
-
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
         {/* Basic Information Section */}
         <div className="bg-gray-50 p-6 rounded-md border border-gray-100">
@@ -200,7 +175,12 @@ export const CompanyRegistrationForm: React.FC<
                 <DistrictAsyncSelect
                   stateId={stateId}
                   value={districtId}
-                  onChange={(id) => setDistrictId(id)}
+                  onChange={(id) => {
+                    setDistrictId(id); // still update state for controlled behavior
+                    if (id !== null) {
+                      setValue("districtId", id); // ✅ this updates RHF form value
+                    }
+                  }}
                 />
                 {errors.districtId && (
                   <p className={errorClass}>{errors.districtId.message}</p>
@@ -231,24 +211,6 @@ export const CompanyRegistrationForm: React.FC<
                     {errors.pincode.message}
                   </p>
                 )}
-              </div>
-            </div>
-
-            {/* Country & Location Details */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Location Details */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Location Details{" "}
-                  <span className="text-xs text-gray-500">
-                    స్థానం వివరాలు (ఐచ్ఛికం)
-                  </span>
-                </label>
-                <input
-                  {...register("locationDetails")}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 text-black"
-                  placeholder="Near landmark, area, etc."
-                />
               </div>
             </div>
           </div>
@@ -372,6 +334,7 @@ export const CompanyRegistrationForm: React.FC<
           </button>
         </div>
       </form>
+      <ToastProvider></ToastProvider>{" "}
     </div>
   );
 };
