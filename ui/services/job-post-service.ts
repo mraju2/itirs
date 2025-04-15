@@ -1,6 +1,5 @@
 import fetchService from "./fetch";
-import { JobPost } from "../types/jobPost";
-import { JobPostCreate } from "../types/JobPostCreate";
+import { JobPost, JobPostCreate, JobPostUpdate, JobPostStatus } from "../types/jobpost"
 export type JobPostResponse = JobPost & {
   id: number;
   createdAt?: string;
@@ -62,10 +61,10 @@ export const jobPostService = {
    * Get a single job post by ID
    * @param id - Job post ID
    */
-  getJobById: async (id: number): Promise<JobPost> => {
+  getJobById: async (id: string): Promise<JobPost> => {
     return await fetchService({
       method: "GET",
-      endpoint: `/api/jobposts/${id}`,
+      endpoint: `/jobposts/${id}`,
     });
   },
 
@@ -87,10 +86,10 @@ export const jobPostService = {
    * @param id - Job post ID
    * @param data - Updated JobPostDto
    */
-  updateJob: async <T = JobPostResponse>(id: string, data: JobPost): Promise<T> => {
+  updateJob: async <T = JobPostResponse>(id: string, data: JobPostUpdate): Promise<T> => {
     return await fetchService<T>({
       method: "PUT",
-      endpoint: `/api/jobposts/${id}`,
+      endpoint: `/jobposts/${id}`,
       body: JSON.parse(JSON.stringify(data)),
       contentType: "application/json",
     });
@@ -106,4 +105,29 @@ export const jobPostService = {
       endpoint: `/api/jobposts/${id}`,
     });
   },
+
+    /**
+   * Update the status of a job post
+   * @param jobPostId - Job post ID
+   * @param status - New status for the job post
+   * @param changedBy - User performing the action
+   */
+    updateJobPostStatus: async (
+      jobPostId: string,
+      status: JobPostStatus,
+      changedBy: string | null = null
+    ): Promise<void> => {
+      const payload = {
+        jobPostId,
+        status,
+        changedBy,
+      };
+  
+      return await fetchService({
+        method: "PATCH",
+        endpoint: "/jobposts/status",
+        body: JSON.parse(JSON.stringify(payload)),
+        contentType: "application/json",
+      });
+    },
 };

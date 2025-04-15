@@ -58,7 +58,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         mySqlOptions.CommandTimeout(60)
             .EnableRetryOnFailure(3, TimeSpan.FromSeconds(5), null);
     });
-
+    options.EnableDetailedErrors()
+.EnableSensitiveDataLogging() // Logs parameter values like IDs and names
+.LogTo(Console.WriteLine, LogLevel.Information); // Writes SQL to console
     options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
 });
 

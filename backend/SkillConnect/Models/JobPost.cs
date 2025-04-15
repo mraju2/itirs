@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using SkillConnect.Models;
+using SkillConnect.Models.Enums;
 
 namespace SkillConnect.Models
 {
@@ -90,6 +91,8 @@ namespace SkillConnect.Models
         public bool Urgent { get; set; }
 
         public long CreatedAtUnix { get; set; } = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        [Required]
+        public JobPostStatus Status { get; set; } = JobPostStatus.Created;
 
         public long? ModifiedAtUnix { get; set; }
 
@@ -99,5 +102,8 @@ namespace SkillConnect.Models
         public District District { get; set; } = null!;
         public List<JobApplication> Applications { get; set; } = new();
         public List<JobPostTrade> JobPostTrades { get; set; } = new();
+
+        public List<JobPostStatusHistory> StatusHistory { get; set; } = new();
+
     }
 }

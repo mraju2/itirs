@@ -68,10 +68,9 @@ namespace SkillConnect.Controllers
         {
             try
             {
-                if (!int.TryParse(id, out var jobPostId))
-                    return BadRequest(new { title = "Invalid ID", message = "ID must be a number." });
+                if (id != dto.Id.ToString())
+                    return BadRequest(new { title = "Bad Request", message = "Company ID mismatch." });
 
-                dto.Id = jobPostId;
                 await _jobPostService.UpdateAsync(dto);
                 return NoContent();
             }
@@ -79,11 +78,12 @@ namespace SkillConnect.Controllers
             {
                 return StatusCode(ex.StatusCode, new { title = ex.Title, message = ex.Message });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return StatusCode(500, new { title = "Internal Server Error", message = "An unexpected error occurred." });
+                return StatusCode(500, new { title = "Internal Server Error", message = ex.Message });
             }
         }
+
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(string id)
@@ -142,6 +142,20 @@ namespace SkillConnect.Controllers
             catch (Exception)
             {
                 return StatusCode(500, new { title = "Internal Server Error", message = "An unexpected error occurred." });
+            }
+        }
+
+        [HttpPatch("status")]
+        public async Task<IActionResult> UpdateStatus([FromBody] JobPostStatusUpdateDto statusUpdateDto)
+        {
+            try
+            {
+                await _jobPostService.UpdateJobPostStatusAsync(statusUpdateDto);
+                return Ok(new { message = "Job post status updated successfully" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
             }
         }
     }

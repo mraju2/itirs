@@ -23,7 +23,6 @@ export const TradeAsyncSelect: React.FC<Props> = ({ value, onChange }) => {
       try {
         const res = await tradeService.getAllTrades();
         setTrades(res);
-        console.log("Fetched trades:", res);
       } catch (err) {
         console.error("Failed to load trades:", err);
       } finally {

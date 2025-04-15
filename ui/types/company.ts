@@ -20,7 +20,6 @@ export interface Company {
   websiteUrl: string;
   locationDetails?: string;
 
-  country?: string; // default: "India"
   createdAtUnix?: number;
   updatedAtUnix?: number;
 }

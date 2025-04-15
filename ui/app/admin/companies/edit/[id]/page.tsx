@@ -1,63 +1,64 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter, useParams } from "next/navigation";
-import { companyService } from "@/services/company-service";
+import { useParams, useRouter } from "next/navigation";
 import { Company } from "@/types/company";
-import { CompanyEditForm } from "@/components/company-edit"; // ✅ Import your form component
-import { Breadcrumbs } from "@/components/breadcrumbs"; // adjust path if needed
+import { companyService } from "@/services/company-service";
+import { CompanyEditForm } from "../../../../../components/company-edit";
+import { Breadcrumbs } from "@/components/breadcrumbs";
 
 const CompanyEditPage = () => {
-  const params = useParams();
-  const id = params.id as string;
+  const { id } = useParams(); // expects /admin/companies/edit/:id
   const router = useRouter();
+
   const [company, setCompany] = useState<Company | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchCompany = async () => {
+      if (!id) return;
+
       try {
-        const data = await companyService.getCompanyById(id as string);
-        setCompany(data);
-      } catch {
-        setError("Failed to load company.");
+        const res = await companyService.getCompanyById(id as string);
+        setCompany(res);
+      } catch (err) {
+        console.error("Failed to fetch company:", err);
+        setError("Unable to load company details.");
       } finally {
         setLoading(false);
       }
     };
+
     fetchCompany();
   }, [id]);
 
-  const handleUpdate = async (data: Company) => {
-    try {
-      await companyService.updateCompany(id as string, data);
-      alert("Company updated successfully.");
-      router.push("/admin/companies");
-    } catch {
-      setError("Failed to update company.");
-    }
-  };
-
-  if (loading) return <p className="p-4">Loading company...</p>;
-  if (error) return <p className="p-4 text-red-600">{error}</p>;
-  if (!company) return <p className="p-4">Company not found.</p>;
-
   return (
-    <div className="max-w-3xl mx-auto p-4 bg-white rounded shadow">
-      <Breadcrumbs
-        items={[
-          { label: "Admin", href: "/admin" },
-          { label: "Companies", href: "/admin/companies" },
-          { label: `Edit Company (${id})` },
-        ]}
-      />
+    <div className="min-h-screen bg-blue-50 py-6 px-4">
+      <div className="max-w-5xl mx-auto">
+        <Breadcrumbs
+          items={[
+            { label: "Admin", href: "/admin" },
+            { label: "Companies", href: "/admin/companies" },
+            { label: "Edit Company" },
+          ]}
+        />
 
-      <CompanyEditForm
-        initialData={company}
-        onSubmit={handleUpdate}
-        submitLabel="Save Changes"
-      />
+        {loading ? (
+          <p className="text-indigo-600 text-sm animate-pulse">
+            Loading company...
+          </p>
+        ) : error ? (
+          <p className="text-red-600 bg-red-100 p-3 rounded">{error}</p>
+        ) : company ? (
+          <CompanyEditForm
+            initialValues={company}
+            onSuccess={() => router.push("/admin/companies")}
+          />
+        ) : (
+          <p className="text-gray-600">Company not found.</p>
+        )}
+      </div>
     </div>
   );
 };

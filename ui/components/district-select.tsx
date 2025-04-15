@@ -20,12 +20,21 @@ export const DistrictAsyncSelect: React.FC<Props> = ({
   onChange,
 }) => {
   const [selectedOption, setSelectedOption] = useState<OptionType | null>(null);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
-  // Reset when state changes
+  const [previousStateId, setPreviousStateId] = useState<number | null>(null);
+
   useEffect(() => {
-    setSelectedOption(null);
-    onChange(null);
-  }, [stateId]);
+    // Only reset when state ID changes to a different value (not on initial load)
+    if (!isInitialLoad && stateId !== previousStateId) {
+      setSelectedOption(null);
+      onChange(null);
+      setPreviousStateId(stateId);
+    } else if (isInitialLoad) {
+      setIsInitialLoad(false);
+      setPreviousStateId(stateId);
+    }
+  }, [stateId, previousStateId, isInitialLoad, onChange]);
 
   // Set selectedOption when value is changed from parent
   useEffect(() => {

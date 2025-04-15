@@ -40,8 +40,5 @@ namespace SkillConnect.Dtos
 
         [StringLength(300)]
         public string? LocationDetails { get; set; }
-
-        [StringLength(100)]
-        public string Country { get; set; } = "India";
     }
 }

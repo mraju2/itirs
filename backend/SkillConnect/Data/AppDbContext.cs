@@ -27,6 +27,11 @@ namespace SkillConnect.Data
 
         public DbSet<Trade> Trade { get; set; }
 
+        public DbSet<JobPostTrade> JobPostTrade { get; set; }
+
+        public DbSet<JobPostStatusHistory> JobPostStatusHistory { get; set; }
+
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -104,6 +109,11 @@ namespace SkillConnect.Data
                 .HasOne(jt => jt.Trade)
                 .WithMany(t => t.JobPostTrades)
                 .HasForeignKey(jt => jt.TradeId);
+
+            modelBuilder.Entity<JobPostStatusHistory>()
+    .HasOne(j => j.JobPost)
+    .WithMany(jp => jp.StatusHistory)
+    .HasForeignKey(j => j.JobPostId);
 
             // Optional: Seed states, districts, trades
             modelBuilder.Seed();

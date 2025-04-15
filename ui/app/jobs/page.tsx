@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { JobPost } from "../../types/jobPost"; // Adjust the import path as necessary
 import JobCard from "../../components/job-card"; // Adjust the import path as necessary
 import { jobPostService } from "../../services/job-post-service"; // Adjust the import path as necessary
+import { ToastProvider } from "@/components/toast-provider";
 
 const JobListPage: React.FC = () => {
   const [jobs, setJobs] = useState<JobPost[]>([]);
@@ -18,6 +19,7 @@ const JobListPage: React.FC = () => {
           <JobCard key={job.id} job={job} />
         ))}
       </div>
+      <ToastProvider />
     </main>
   );
 };

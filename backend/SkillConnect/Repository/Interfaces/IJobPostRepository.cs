@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using SkillConnect.Models;
+using SkillConnect.Models.Enums;
 
 namespace SkillConnect.Repositories.Interfaces
 {
@@ -45,5 +46,7 @@ namespace SkillConnect.Repositories.Interfaces
             Dictionary<string, string>? filters,
             string? sortBy,
             bool isDescending);
+
+        Task UpdateStatusAsync(Guid jobPostId, JobPostStatus newStatus, string? changedBy);
     }
 }

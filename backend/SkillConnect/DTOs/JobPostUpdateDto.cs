@@ -1,22 +1,29 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using SkillConnect.Models.Enums;
 
 namespace SkillConnect.Dtos
 {
     public class JobPostUpdateDto
     {
         [Required]
-        public int Id { get; set; } // Unique identifier for the JobPost being updated
+        public Guid Id { get; set; }
 
         [Required]
         public Guid CompanyId { get; set; }
 
         [Required]
+        public int StateId { get; set; }
+
+        [Required]
+        public int DistrictId { get; set; }
+
+        [Required]
         public string JobTitle { get; set; } = null!;
 
         [Required]
-        public string District { get; set; } = null!;
+        public string JobLocation { get; set; } = null!;
 
         [Required]
         public string JobDescription { get; set; } = null!;
@@ -63,13 +70,14 @@ namespace SkillConnect.Dtos
 
         public bool Urgent { get; set; }
 
-        public int? Vacancies { get; set; } // Total positions available
+        public int? Vacancies { get; set; }
 
-
-        public string? FacilitiesProvided { get; set; } // e.g. "Transport, Food, Uniform, Shoe"
-
+        public string? FacilitiesProvided { get; set; }
 
         [Required]
         public List<int> TradeIds { get; set; } = new();
+
+        [Required]
+        public JobPostStatus Status { get; set; }
     }
 }

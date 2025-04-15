@@ -4,6 +4,7 @@ using SkillConnect.Models;
 using SkillConnect.Services.Interfaces;
 using SkillConnect.Dtos;
 using System.ComponentModel.DataAnnotations;
+using SkillConnect.Data;
 
 namespace SkillConnect.Services
 {
@@ -11,11 +12,14 @@ namespace SkillConnect.Services
     {
         private readonly IJobPostRepository _repository;
         private readonly IMapper _mapper;
+        private readonly AppDbContext _context;
 
-        public JobPostService(IJobPostRepository repository, IMapper mapper)
+
+        public JobPostService(IJobPostRepository repository, IMapper mapper, AppDbContext context)
         {
             _repository = repository;
             _mapper = mapper;
+            _context = context;
         }
 
         public async Task<IEnumerable<JobPostDto>> GetAllAsync()
@@ -58,8 +62,33 @@ namespace SkillConnect.Services
             if (existing == null)
                 throw new CustomException("Not Found", "Job post not found", 404);
 
-            var updated = _mapper.Map(dto, existing);
-            await _repository.UpdateAsync(updated);
+            Console.WriteLine($"[🔎] JobPost ID: {dto.Id}");
+            Console.WriteLine($"[📦] Existing TradeIds: {string.Join(", ", existing.JobPostTrades.Select(t => t.TradeId))}");
+            Console.WriteLine($"[🛬] Incoming TradeIds: {string.Join(", ", dto.TradeIds)}");
+
+            // ✅ Update trades manually
+            if (dto.TradeIds != null)
+            {
+                _context.JobPostTrade.RemoveRange(existing.JobPostTrades); // flush old
+                existing.JobPostTrades = dto.TradeIds.Select(id => new JobPostTrade
+                {
+                    JobPostId = existing.Id,
+                    TradeId = id
+                }).ToList();
+            }
+
+            _mapper.Map(dto, existing);
+
+            await _repository.UpdateAsync(existing); // let repo just call SaveChanges
+        }
+
+        public async Task UpdateJobPostStatusAsync(JobPostStatusUpdateDto statusUpdateDto)
+        {
+            await _repository.UpdateStatusAsync(
+                statusUpdateDto.JobPostId,
+                statusUpdateDto.Status,
+                statusUpdateDto.ChangedBy
+            );
         }
 
         public async Task<List<JobPostDto>> GetByCompanyIdAsync(Guid companyId)
@@ -67,7 +96,6 @@ namespace SkillConnect.Services
             var jobPosts = await _repository.GetJobPostsByCompanyIdAsync(companyId);
             return _mapper.Map<List<JobPostDto>>(jobPosts);
         }
-
 
         public async Task DeleteAsync(string id)
         {
