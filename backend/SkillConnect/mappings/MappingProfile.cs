@@ -34,13 +34,17 @@ namespace SkillConnect.Mappings
      .ForMember(dest => dest.StateId, opt => opt.MapFrom(src => src.StateId))
      .ForMember(dest => dest.StateName, opt => opt.MapFrom(src => src.State.Name))
      .ForMember(dest => dest.DistrictId, opt => opt.MapFrom(src => src.DistrictId))
-     .ForMember(dest => dest.DistrictName, opt => opt.MapFrom(src => src.District.Name));
+     .ForMember(dest => dest.DistrictName, opt => opt.MapFrom(src => src.District.Name))
+    .ForMember(dest => dest.JobLocation, opt => opt.MapFrom(src => src.Location));
+
 
 
             CreateMap<JobPostDto, JobPost>(); // for returning data, not creating directly
             CreateMap<JobPostUpdateDto, JobPost>()
     .ForMember(dest => dest.Id, opt => opt.MapFrom(src => Guid.Parse(src.Id.ToString())))
-    .ForMember(dest => dest.JobPostTrades, opt => opt.Ignore()); // You may handle trades manually if needed
+    .ForMember(dest => dest.JobPostTrades, opt => opt.Ignore())
+    .ForMember(dest => dest.Location, opt => opt.MapFrom(src => src.JobLocation)); // <-- Fix is here
+                                                                                   // You may handle trades manually if needed
 
 
             // JobApplication

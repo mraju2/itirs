@@ -9,11 +9,12 @@ import {
   TableBody,
   TableCell,
 } from "./table";
-import { JobPost } from "../types/jobpost";
+import { JobPost, JobPostStatus } from "../types/jobpost";
 import { useRouter } from "next/navigation";
 import { Tooltip } from "./tool-tip";
 import { StatusBadge } from "./status-badge";
-import { JobStatusJobDialog } from "./job-status-change-dialog";
+import { JobStatusChangeDialog } from "./job-status-change-dialog";
+import { jobPostService } from "../services/job-post-service";
 
 interface JobPostsTableProps {
   jobPosts: JobPost[];
@@ -41,12 +42,21 @@ export const JobPostsTable = ({
 
   const handleStatusConfirm = async () => {
     if (!selectedJob) return;
-    const nextStatus = selectedJob.status === 1 ? 2 : 3;
+    const nextStatus =
+      selectedJob.status === JobPostStatus.Deactivated
+        ? JobPostStatus.Active
+        : JobPostStatus.Deactivated;
 
-    // Call your service here
-    // await jobPostService.updateStatus(selectedJob.id!, nextStatus);
+    try {
+      await jobPostService.updateJobPostStatus(
+        selectedJob.id!,
+        nextStatus,
+        "AdminUser123" // Replace with actual user performing the action
+      );
+    } catch (error) {
+      console.error("Failed to update job post status:", error);
+    }
 
-    console.log("Status updated for:", selectedJob.jobTitle, "→", nextStatus);
     setShowConfirm(false);
     setSelectedJob(null);
   };
@@ -142,7 +152,9 @@ export const JobPostsTable = ({
                 <TableCell className="text-sm px-2 py-2 whitespace-nowrap">
                   <div className="flex items-center gap-2">
                     <StatusBadge status={job.status} />
-                    {job.status !== 3 && (
+                    {(job.status === JobPostStatus.Active ||
+                      job.status === JobPostStatus.Deactivated ||
+                      job.status === JobPostStatus.Created) && (
                       <button
                         className="text-xs text-blue-600 underline"
                         ref={(el) => {
@@ -151,11 +163,14 @@ export const JobPostsTable = ({
                         }}
                         onClick={(e) => handleStatusClick(job, e.currentTarget)}
                       >
-                        {job.status === 1 ? "Activate" : "Deactivate"}
+                        {job.status === JobPostStatus.Active
+                          ? "Deactivate"
+                          : "Activate"}
                       </button>
                     )}
                   </div>
                 </TableCell>
+
                 <TableCell className="text-sm px-2 py-2 whitespace-nowrap">
                   <div className="flex gap-2">
                     <button
@@ -175,12 +190,22 @@ export const JobPostsTable = ({
         </TableBody>
       </Table>
 
-      <JobStatusJobDialog
+      <JobStatusChangeDialog
         isOpen={showConfirm}
         onClose={() => setShowConfirm(false)}
         onConfirm={handleStatusConfirm}
         job={selectedJob}
-        actionLabel={selectedJob?.status === 1 ? "Activate" : "Deactivate"}
+        actionLabel={
+          selectedJob?.status === JobPostStatus.Created
+            ? "Activate"
+            : "Deactivate"
+        }
+        newStatus={
+          selectedJob?.status === JobPostStatus.Created
+            ? JobPostStatus.Active
+            : JobPostStatus.Deactivated
+        }
+        changedBy="AdminUser123" // Replace with actual user performing the action
       />
     </>
   );

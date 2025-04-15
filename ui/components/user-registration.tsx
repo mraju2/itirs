@@ -3,7 +3,6 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import React from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { userService } from "../services/user-service"; // Ensure the correct path
 import { UserRegistrationData } from "@/types/user";
 import { TRADE_OPTIONS } from "../app/constants/trades"; // Ensure the correct path
 
@@ -72,11 +71,6 @@ const UserRegistration: React.FC = () => {
         delete formattedData.otherTrade; // Remove otherTrade if empty
       }
 
-      console.log("Submitting data:", formattedData);
-
-      const response = await userService.createRegistration(formattedData);
-
-      console.log("API Response:", response);
       toast.success("Form submitted successfully!", {
         position: "top-right",
         autoClose: 3000,

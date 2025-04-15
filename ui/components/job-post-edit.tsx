@@ -60,7 +60,6 @@ export const JobPostEditForm: React.FC<JobPostEditFormProps> = ({
   initialValues,
   onSuccess,
 }) => {
-  console.log("Initial Values:", initialValues);
   const mappedDefaults: JobPostFormData = {
     companyId: initialValues.companyId,
     jobTitle: initialValues.jobTitle,
@@ -302,7 +301,6 @@ export const JobPostEditForm: React.FC<JobPostEditFormProps> = ({
                 stateId={stateId}
                 value={districtId}
                 onChange={(id) => {
-                  console.log("Selected District ID:", id);
                   setDistrictId(id);
                   setValue("districtId", Number(id)); // Sync with form data
                 }}

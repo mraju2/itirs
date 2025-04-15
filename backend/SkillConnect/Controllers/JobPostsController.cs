@@ -144,5 +144,19 @@ namespace SkillConnect.Controllers
                 return StatusCode(500, new { title = "Internal Server Error", message = "An unexpected error occurred." });
             }
         }
+
+        [HttpPatch("status")]
+        public async Task<IActionResult> UpdateStatus([FromBody] JobPostStatusUpdateDto statusUpdateDto)
+        {
+            try
+            {
+                await _jobPostService.UpdateJobPostStatusAsync(statusUpdateDto);
+                return Ok(new { message = "Job post status updated successfully" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
     }
 }

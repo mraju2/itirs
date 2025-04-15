@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using SkillConnect.Data;
 using SkillConnect.Models;
+using SkillConnect.Models.Enums;
 using SkillConnect.Repositories.Interfaces;
+
 
 namespace SkillConnect.Repositories
 {
@@ -48,8 +50,60 @@ namespace SkillConnect.Repositories
             await _context.SaveChangesAsync();
         }
 
+        public async Task UpdateStatusAsync(Guid jobPostId, JobPostStatus newStatus, string? changedBy)
+        {
+            // Fetch the job post with status history
+            var jobPost = await _context.JobPosts
+                .Include(j => j.StatusHistory) // optional, only needed if you use it here
+                .FirstOrDefaultAsync(j => j.Id == jobPostId);
 
+            if (jobPost == null)
+                throw new Exception($"Job post with ID {jobPostId} not found");
 
+            Console.WriteLine($"[DEBUG] Before Update: Status = {jobPost.Status}");
+
+            // Update status and timestamp
+            jobPost.Status = newStatus;
+            jobPost.ModifiedAtUnix = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+            _context.Entry(jobPost).Property(j => j.Status).IsModified = true;
+            _context.Entry(jobPost).Property(j => j.ModifiedAtUnix).IsModified = true;
+
+            Console.WriteLine($"[DEBUG] After Update: Status = {jobPost.Status}");
+
+            // Inspect EF Core change tracker
+            var entry = _context.Entry(jobPost);
+            foreach (var prop in entry.Properties)
+            {
+                Console.WriteLine($"[DEBUG] {prop.Metadata.Name}: {prop.OriginalValue} → {prop.CurrentValue} | Modified: {prop.IsModified}");
+            }
+
+            // Add a record to status history
+            var statusHistory = new JobPostStatusHistory
+            {
+                JobPostId = jobPostId,
+                Status = newStatus,
+                ChangedAtUnix = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                ChangedBy = changedBy
+            };
+
+            _context.JobPostStatusHistory.Add(statusHistory);
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                Console.WriteLine("[DEBUG] SaveChangesAsync completed successfully.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] SaveChangesAsync failed: {ex.Message}");
+                throw;
+            }
+
+            // Re-fetch the updated job post to confirm (optional)
+            var updated = await _context.JobPosts.FindAsync(jobPostId);
+            Console.WriteLine($"[DEBUG] Fetched after save: Status = {updated?.Status}");
+        }
 
 
         public async Task DeleteAsync(string id)
@@ -63,12 +117,12 @@ namespace SkillConnect.Repositories
         }
 
         public async Task<PaginatedResult<JobPost>> GetPaginatedAsync(
-    int pageNumber,
-    int pageSize,
-    string? searchTerm,
-    Dictionary<string, string>? filters,
-    string? sortBy,
-    bool isDescending)
+                int pageNumber,
+                int pageSize,
+                string? searchTerm,
+                Dictionary<string, string>? filters,
+                string? sortBy,
+                bool isDescending)
         {
             var query = _context.JobPosts
     .Include(j => j.Company)
@@ -78,8 +132,6 @@ namespace SkillConnect.Repositories
     .AsQueryable();
 
 
-            Console.WriteLine("🔍 Starting GetPaginatedAsync");
-            Console.WriteLine($"Page: {pageNumber}, Size: {pageSize}, SortBy: {sortBy}, Descending: {isDescending}");
 
             // Search
             if (!string.IsNullOrWhiteSpace(searchTerm))

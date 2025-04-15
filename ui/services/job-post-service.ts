@@ -1,5 +1,5 @@
 import fetchService from "./fetch";
-import { JobPost, JobPostCreate, JobPostUpdate } from "../types/jobpost"
+import { JobPost, JobPostCreate, JobPostUpdate, JobPostStatus } from "../types/jobpost"
 export type JobPostResponse = JobPost & {
   id: number;
   createdAt?: string;
@@ -105,4 +105,29 @@ export const jobPostService = {
       endpoint: `/api/jobposts/${id}`,
     });
   },
+
+    /**
+   * Update the status of a job post
+   * @param jobPostId - Job post ID
+   * @param status - New status for the job post
+   * @param changedBy - User performing the action
+   */
+    updateJobPostStatus: async (
+      jobPostId: string,
+      status: JobPostStatus,
+      changedBy: string | null = null
+    ): Promise<void> => {
+      const payload = {
+        jobPostId,
+        status,
+        changedBy,
+      };
+  
+      return await fetchService({
+        method: "PATCH",
+        endpoint: "/jobposts/status",
+        body: JSON.parse(JSON.stringify(payload)),
+        contentType: "application/json",
+      });
+    },
 };

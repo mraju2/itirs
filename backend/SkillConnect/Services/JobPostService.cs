@@ -15,7 +15,7 @@ namespace SkillConnect.Services
         private readonly AppDbContext _context;
 
 
-        public JobPostService(IJobPostRepository repository, IMapper mapper,AppDbContext context)
+        public JobPostService(IJobPostRepository repository, IMapper mapper, AppDbContext context)
         {
             _repository = repository;
             _mapper = mapper;
@@ -66,9 +66,6 @@ namespace SkillConnect.Services
             Console.WriteLine($"[📦] Existing TradeIds: {string.Join(", ", existing.JobPostTrades.Select(t => t.TradeId))}");
             Console.WriteLine($"[🛬] Incoming TradeIds: {string.Join(", ", dto.TradeIds)}");
 
-            // ✅ Map scalar fields (in-place)
-            _mapper.Map(dto, existing);
-
             // ✅ Update trades manually
             if (dto.TradeIds != null)
             {
@@ -80,16 +77,25 @@ namespace SkillConnect.Services
                 }).ToList();
             }
 
+            _mapper.Map(dto, existing);
+
             await _repository.UpdateAsync(existing); // let repo just call SaveChanges
         }
 
+        public async Task UpdateJobPostStatusAsync(JobPostStatusUpdateDto statusUpdateDto)
+        {
+            await _repository.UpdateStatusAsync(
+                statusUpdateDto.JobPostId,
+                statusUpdateDto.Status,
+                statusUpdateDto.ChangedBy
+            );
+        }
 
         public async Task<List<JobPostDto>> GetByCompanyIdAsync(Guid companyId)
         {
             var jobPosts = await _repository.GetJobPostsByCompanyIdAsync(companyId);
             return _mapper.Map<List<JobPostDto>>(jobPosts);
         }
-
 
         public async Task DeleteAsync(string id)
         {

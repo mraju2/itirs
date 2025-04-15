@@ -18,7 +18,6 @@ const LoginPage: React.FC = () => {
 
   const onSubmit: SubmitHandler<LoginFormInputs> = async (data) => {
     try {
-      console.log("Logging in with", data);
       toast.success("Login successful!", {
         position: "top-right",
         autoClose: 3000,

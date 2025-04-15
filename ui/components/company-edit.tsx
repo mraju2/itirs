@@ -34,7 +34,6 @@ export const CompanyEditForm: React.FC<CompanyEditFormProps> = ({
   } = useForm<CompanyUpdate>({
     defaultValues: initialValues,
   });
-  console.log("Initial Values:", initialValues);
   const [stateId, setStateId] = useState<number | null>(initialValues.stateId);
   const [districtId, setDistrictId] = useState<number | null>(
     initialValues.districtId
@@ -57,10 +56,7 @@ export const CompanyEditForm: React.FC<CompanyEditFormProps> = ({
         stateId: stateId ?? undefined,
         districtId: districtId ?? undefined,
       };
-      console.log("Form data before submission:", data);
-      console.log("State values before submission:", { stateId, districtId });
-      console.log("Final payload:", payload);
-
+  
       await companyService.updateCompany(initialValues.id!, payload);
       toast.success("Company updated successfully!");
       onSuccess?.();
@@ -137,7 +133,6 @@ export const CompanyEditForm: React.FC<CompanyEditFormProps> = ({
             stateId={stateId}
             value={districtId}
             onChange={(value: number | null) => {
-              console.log("Selected District ID:", value);
               setDistrictId(value);
               setValue("districtId", value as number); // Sync with form data
             }}

@@ -20,6 +20,8 @@ namespace SkillConnect.Services.Interfaces
             bool isDescending);
 
         Task<List<JobPostDto>> GetByCompanyIdAsync(Guid companyId);
+        // New method for updating job post status
+        Task UpdateJobPostStatusAsync(JobPostStatusUpdateDto statusUpdateDto);
 
     }
 }

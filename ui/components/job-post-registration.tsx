@@ -124,7 +124,6 @@ export const JobPostCreateForm: React.FC = () => {
         tradeIds: data.tradeIds,
       };
 
-      console.log("Payload before submission:", payload);
 
       await jobPostService.createJob(payload);
       toast.success("Job posted successfully!");
@@ -297,7 +296,6 @@ export const JobPostCreateForm: React.FC = () => {
                 stateId={stateId}
                 value={districtId}
                 onChange={(id) => {
-                  console.log("Selected District ID:", id);
                   setDistrictId(id);
                   setValue("districtId", Number(id)); // Sync with form data
                 }}

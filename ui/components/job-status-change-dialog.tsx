@@ -1,22 +1,47 @@
-import React from "react";
-import { JobPost } from "../types/jobpost";
+import React, { useState } from "react";
+import { JobPost, JobPostStatus } from "../types/jobpost";
+import { jobPostService } from "../services/job-post-service";
 
-interface JobStatusJobDialogProps {
+interface JobStatusChangeDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: () => void;
+  onConfirm: () => void; // Callback after successful status update
   job: JobPost | null;
   actionLabel: string; // e.g., 'Activate', 'Deactivate'
+  newStatus: JobPostStatus; // The status to update to
+  changedBy: string; // User performing the action
 }
 
-export const JobStatusJobDialog: React.FC<JobStatusJobDialogProps> = ({
+export const JobStatusChangeDialog: React.FC<JobStatusChangeDialogProps> = ({
   isOpen,
   onClose,
   onConfirm,
   job,
   actionLabel,
+  newStatus,
+  changedBy,
 }) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   if (!isOpen || !job) return null;
+
+  const handleConfirm = async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      if (!job.id) throw new Error("Job ID is required");
+      await jobPostService.updateJobPostStatus(job.id, newStatus, changedBy);
+      onConfirm(); // Notify parent of successful update
+      onClose(); // Close the dialog
+    } catch (err) {
+      console.error("Error updating job status:", err);
+      setError("Failed to update job status. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
@@ -89,18 +114,28 @@ export const JobStatusJobDialog: React.FC<JobStatusJobDialogProps> = ({
           )}
         </div>
 
+        {error && (
+          <div className="text-red-600 text-sm mb-4">
+            <strong>Error:</strong> {error}
+          </div>
+        )}
+
         <div className="flex justify-end gap-3">
           <button
             onClick={onClose}
             className="px-4 py-2 text-sm bg-gray-200 rounded hover:bg-gray-300"
+            disabled={isLoading}
           >
             Cancel
           </button>
           <button
-            onClick={onConfirm}
-            className="px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+            onClick={handleConfirm}
+            className={`px-4 py-2 text-sm text-white rounded ${
+              isLoading ? "bg-blue-400" : "bg-blue-600 hover:bg-blue-700"
+            }`}
+            disabled={isLoading}
           >
-            {actionLabel}
+            {isLoading ? "Processing..." : actionLabel}
           </button>
         </div>
       </div>

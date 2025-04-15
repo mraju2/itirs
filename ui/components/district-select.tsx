@@ -93,7 +93,6 @@ export const DistrictAsyncSelect: React.FC<Props> = ({
         placeholder="Start typing to search..."
         value={selectedOption}
         onChange={(option) => {
-          console.log("DistrictAsyncSelect onChange called with:", option);
           if (option) {
             setSelectedOption(option);
             onChange(option.value);
