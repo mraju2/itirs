@@ -10,7 +10,7 @@ import { PlusIcon } from "../../../icons/plus-icon";
 import { SmartSearchInput } from "../../../components/smart-search";
 import { parseAdvancedSearch } from "@/utils/util";
 
-const COMPANIES_PER_PAGE = 5;
+const COMPANIES_PER_PAGE = 10;
 
 const CompaniesPage = () => {
   const [companies, setCompanies] = useState<Company[]>([]);
