@@ -6,6 +6,14 @@ export enum JobPostStatus {
   Deactivated = 3,
 }
 
+export enum MinimumQualification {
+  Tenth = 'Tenth',
+  ITI = 'ITI',
+  Diploma = 'Diploma',
+  Intermediate = 'Intermediate',
+}
+
+
 export interface JobPost {
   id?: string;
 
@@ -52,6 +60,9 @@ export interface JobPost {
   trades: Trade[];
 
   status: JobPostStatus;
+
+  minimumQualifications: MinimumQualification[]; // 👈 new field
+
 }
 
 // Create DTO: used when posting a new job
@@ -66,6 +77,8 @@ export type JobPostCreate = Omit<
   | 'trades' // 👈 remove the full object list
 > & {
   tradeIds: number[]; // 👈 add only the trade ID list
+  minimumQualifications: MinimumQualification[]; // 👈 new field
+
 };
 
 
@@ -80,6 +93,8 @@ export type JobPostUpdate = Omit<
   | 'trades' // 👈 remove the full object list
 > & {
   tradeIds: number[]; // 👈 add only the trade ID list
+  minimumQualifications: MinimumQualification[]; // 👈 new field
+
 };
 
 // View type for frontend rendering

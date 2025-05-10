@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import { toast } from "react-toastify";
 import { jobPostService } from "@/services/job-post-service";
 import { ToastProvider } from "./toast-provider";
-import { JobPost, JobPostUpdate } from "@/types/jobpost";
+import { JobPost, JobPostUpdate, MinimumQualification } from "@/types/jobpost";
 
 const CompanyAsyncSelect = dynamic(
   () => import("./company-select").then((mod) => mod.CompanyAsyncSelect),
@@ -42,6 +42,7 @@ interface JobPostFormData {
   applicationDeadline: string; // ✅ used in input[type=date]
   additionalBenefits?: string;
   genderRequirement: string;
+  vacancies: number;
   minAge: number;
   maxAge?: number;
   salaryMin: number;
@@ -54,6 +55,7 @@ interface JobPostFormData {
   apprenticesConsidered: boolean;
   urgent: boolean;
   tradeIds: number[];
+  minimumQualifications: MinimumQualification[];
 }
 
 export const JobPostEditForm: React.FC<JobPostEditFormProps> = ({
@@ -74,6 +76,7 @@ export const JobPostEditForm: React.FC<JobPostEditFormProps> = ({
       .split("T")[0], // ✅ Convert to "YYYY-MM-DD"
     additionalBenefits: initialValues.additionalBenefits || "",
     genderRequirement: initialValues.genderRequirement || "Any",
+    vacancies: initialValues.vacancies || 1,
     minAge: initialValues.minAge,
     maxAge: initialValues.maxAge,
     salaryMin: initialValues.salaryMin,
@@ -88,6 +91,7 @@ export const JobPostEditForm: React.FC<JobPostEditFormProps> = ({
     tradeIds: initialValues.trades
       .map((t) => Number(t.tradeId))
       .filter((id) => id != null),
+    minimumQualifications: initialValues.minimumQualifications || [],
   };
 
   const {
@@ -125,6 +129,19 @@ export const JobPostEditForm: React.FC<JobPostEditFormProps> = ({
         return;
       }
 
+      if (!data.tradeIds || data.tradeIds.length === 0) {
+        toast.error("Please select at least one trade");
+        return;
+      }
+
+      if (
+        !data.minimumQualifications ||
+        data.minimumQualifications.length === 0
+      ) {
+        toast.error("Please select at least one minimum qualification");
+        return;
+      }
+
       const payload: JobPostUpdate = {
         id: initialValues.id,
         jobTitle: data.jobTitle,
@@ -140,6 +157,7 @@ export const JobPostEditForm: React.FC<JobPostEditFormProps> = ({
         ),
         additionalBenefits: data.additionalBenefits,
         genderRequirement: data.genderRequirement,
+        vacancies: data.vacancies,
         minAge: data.minAge,
         maxAge: data.maxAge,
         salaryMin: data.salaryMin,
@@ -152,6 +170,7 @@ export const JobPostEditForm: React.FC<JobPostEditFormProps> = ({
         apprenticesConsidered: data.apprenticesConsidered,
         urgent: data.urgent,
         tradeIds: data.tradeIds.filter((id) => id != null),
+        minimumQualifications: data.minimumQualifications,
       };
 
       await jobPostService.updateJob(initialValues.id, payload);
@@ -277,6 +296,24 @@ export const JobPostEditForm: React.FC<JobPostEditFormProps> = ({
                 </p>
               )}
             </div>
+
+            {/* Vacancies */}
+            <div>
+              <label className={labelClass}>
+                Vacancies <span className={teluguClass}>ఖాళీలు</span>
+              </label>
+              <input
+                {...register("vacancies", {
+                  required: "Vacancies are required",
+                  valueAsNumber: true,
+                })}
+                type="number"
+                className={inputClass}
+              />
+              {errors.vacancies && (
+                <p className={errorClass}>{errors.vacancies.message}</p>
+              )}
+            </div>
           </div>
         </div>
 
@@ -384,8 +421,35 @@ export const JobPostEditForm: React.FC<JobPostEditFormProps> = ({
               {errors.tradeIds && (
                 <p className={errorClass}>At least one trade is required</p>
               )}
-              {errors.tradeIds && (
-                <p className={errorClass}>At least one trade is required</p>
+            </div>
+
+            {/* Minimum Qualifications */}
+            <div className="md:col-span-2">
+              <label className={labelClass}>
+                Minimum Qualifications{" "}
+                <span className={teluguClass}>కనీస అర్హతలు</span>
+              </label>
+              <div className="flex flex-col gap-2">
+                {Object.values(MinimumQualification).map((qual) => (
+                  <label key={qual} className="inline-flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      value={qual}
+                      {...register("minimumQualifications", {
+                        validate: (selected) =>
+                          selected.length > 0 ||
+                          "Please select at least one qualification",
+                      })}
+                      className="w-4 h-4 text-indigo-600"
+                    />
+                    <span className="text-sm text-gray-800">{qual}</span>
+                  </label>
+                ))}
+              </div>
+              {errors.minimumQualifications && (
+                <p className={errorClass}>
+                  {errors.minimumQualifications.message}
+                </p>
               )}
             </div>
 

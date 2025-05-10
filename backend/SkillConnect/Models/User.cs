@@ -8,7 +8,7 @@ namespace SkillConnect.Models
     public class User
     {
         [Key]
-        public Guid Id { get; set; } = Guid.NewGuid();
+        public Guid Id { get; set; }
 
         [Required, StringLength(100)]
         public string FirstName { get; set; }
@@ -30,9 +30,6 @@ namespace SkillConnect.Models
 
         [Required, StringLength(100)]
         public string Address { get; set; }
-
-        [Required, StringLength(50)]
-        public string Mandal { get; set; }
 
         [Required]
         public int DistrictId { get; set; }

@@ -50,6 +50,8 @@ namespace SkillConnect.Controllers
         {
             try
             {
+                Console.WriteLine("Received DTO:");
+                Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(dto));
                 var created = await _jobPostService.CreateAsync(dto);
                 return CreatedAtAction(nameof(Get), new { id = created.Id }, created); // returns JobPostDto
             }

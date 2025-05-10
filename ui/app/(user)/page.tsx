@@ -1,22 +1,24 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Head from "next/head";
-import Image from "next/image";
 import Link from "next/link";
 import {
   Search,
   MapPin,
-  Briefcase,
   Building,
   ChevronRight,
   Users,
   Award,
   CheckCircle,
 } from "lucide-react";
+import { jobPostService } from "@/services/job-post-service";
+import { JobPost } from "@/types/jobpost";
 
 export default function Home() {
   const [jobSearch, setJobSearch] = useState("");
   const [locationSearch, setLocationSearch] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const popularCategories = [
     { name: "Electrical", count: 124, icon: "fas fa-bolt" },
@@ -25,37 +27,53 @@ export default function Home() {
     { name: "Plumbing", count: 65, icon: "fas fa-faucet" },
   ];
 
-  const featuredJobs = [
-    {
-      title: "Senior Software Engineer",
-      company: "Tech Corp",
-      location: "Bangalore",
-      salary: "₹1500000 - ₹2500000",
-      experience: "5+ yrs",
-      posted: "20/04/2024",
-    },
-    {
-      title: "ITI Electrician",
-      company: "PowerSystems Ltd",
-      location: "Chennai",
-      salary: "₹350000 - ₹450000",
-      experience: "2-3 yrs",
-      posted: "18/04/2024",
-    },
-    {
-      title: "CNC Machine Operator",
-      company: "MetalWorks",
-      location: "Pune",
-      salary: "₹280000 - ₹350000",
-      experience: "1-2 yrs",
-      posted: "21/04/2024",
-    },
-  ];
+  const [featuredJobs, setFeaturedJobs] = useState<JobPost[]>([]);
+  const pageSize = 3;
+
+  const fetchJobs = async (page: number) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await jobPostService.getPaginatedJobs(page, pageSize);
+      setFeaturedJobs(response.items);
+    } catch (error) {
+      console.error("Failed to fetch featured jobs:", error);
+      if (
+        error instanceof Error &&
+        error.message.includes("Unable to connect to the server")
+      ) {
+        setError(
+          "The server is currently unavailable. Please try again later."
+        );
+      } else {
+        setError("Unable to load featured jobs. Please try again later.");
+      }
+      setFeaturedJobs([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchJobs(1); // Load first page (latest 3 jobs)
+  }, []);
 
   const successStats = [
-    { number: "15,000+", label: "Candidates Placed" },
-    { number: "1,200+", label: "Partner Companies" },
-    { number: "94%", label: "Placement Rate" },
+    {
+      number: null,
+      label: "Candidates Placed",
+      fallback: "Coming Soon",
+    },
+    {
+      number: null,
+      label: "Partner Companies",
+      fallback: "Launching...",
+    },
+    {
+      number: null,
+      label: "Placement Rate",
+      fallback: "Tracking",
+    },
   ];
 
   return (
@@ -97,7 +115,7 @@ export default function Home() {
                   <input
                     type="text"
                     placeholder="Job title, keywords, or company"
-                    className="w-full pl-10 pr-3 py-3 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    className="w-full pl-10 pr-3 py-3 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-400 text-gray-900 placeholder-gray-500"
                     value={jobSearch}
                     onChange={(e) => setJobSearch(e.target.value)}
                   />
@@ -109,8 +127,8 @@ export default function Home() {
                   />
                   <input
                     type="text"
-                    placeholder="City, state, or remote"
-                    className="w-full pl-10 pr-3 py-3 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    placeholder="Stere, Disctrict, or City"
+                    className="w-full pl-10 pr-3 py-3 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-400 text-gray-900 placeholder-gray-500"
                     value={locationSearch}
                     onChange={(e) => setLocationSearch(e.target.value)}
                   />
@@ -149,7 +167,11 @@ export default function Home() {
                 className="p-6 rounded-lg bg-gradient-to-br from-slate-50 to-slate-100 shadow-sm"
               >
                 <div className="text-3xl md:text-4xl font-bold text-blue-600 mb-2">
-                  {stat.number}
+                  {stat.number ? (
+                    stat.number
+                  ) : (
+                    <span className="text-blue-600">{stat.fallback}</span>
+                  )}
                 </div>
                 <div className="text-slate-700">{stat.label}</div>
               </div>
@@ -218,7 +240,7 @@ export default function Home() {
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-2xl font-bold">Popular Categories</h2>
             <Link
-              href="/categories"
+              href="/jobs"
               className="text-blue-600 hover:text-blue-700 flex items-center"
             >
               View All <ChevronRight size={16} />
@@ -260,54 +282,108 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {featuredJobs.map((job, index) => (
-              <div
-                key={index}
-                className="bg-white rounded-lg border border-slate-200 overflow-hidden hover:shadow-md transition"
-              >
-                <div className="p-5">
-                  <div className="mb-3 flex justify-between">
-                    <h3 className="font-bold text-lg text-blue-600">
-                      {job.title}
-                    </h3>
-                    <button className="text-slate-400 hover:text-blue-600">
-                      <i className="far fa-bookmark"></i>
-                    </button>
-                  </div>
-
-                  <div className="flex items-center text-slate-700 mb-2">
-                    <Building size={16} className="mr-2" />
-                    {job.company}
-                  </div>
-
-                  <div className="flex items-center text-slate-700 mb-4">
-                    <MapPin size={16} className="mr-2" />
-                    {job.location}
-                  </div>
-
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    <span className="bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-sm">
-                      <i className="fas fa-briefcase mr-1"></i> {job.experience}
-                    </span>
-                    <span className="bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-sm">
-                      <i className="fas fa-rupee-sign mr-1"></i> {job.salary}
-                    </span>
-                  </div>
-
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-slate-500">
-                      Posted: {job.posted}
-                    </span>
-                    <Link
-                      href={`/jobs/${index}`}
-                      className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
-                    >
-                      View Details
-                    </Link>
+            {isLoading ? (
+              // Loading state
+              Array.from({ length: 3 }).map((_, index) => (
+                <div
+                  key={index}
+                  className="bg-white rounded-lg border border-slate-200 overflow-hidden animate-pulse"
+                >
+                  <div className="p-5">
+                    <div className="h-6 bg-slate-200 rounded w-3/4 mb-4"></div>
+                    <div className="h-4 bg-slate-200 rounded w-1/2 mb-2"></div>
+                    <div className="h-4 bg-slate-200 rounded w-2/3 mb-4"></div>
+                    <div className="flex gap-2 mb-4">
+                      <div className="h-8 bg-slate-200 rounded-full w-24"></div>
+                      <div className="h-8 bg-slate-200 rounded-full w-24"></div>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <div className="h-4 bg-slate-200 rounded w-1/3"></div>
+                      <div className="h-8 bg-slate-200 rounded w-24"></div>
+                    </div>
                   </div>
                 </div>
+              ))
+            ) : error ? (
+              // Error state
+              <div className="col-span-3 text-center py-8">
+                <div className="bg-white rounded-lg border border-slate-200 p-6 max-w-md mx-auto">
+                  <p className="text-slate-600 mb-4">{error}</p>
+                  <button
+                    onClick={() => fetchJobs(1)}
+                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+                  >
+                    Try Again
+                  </button>
+                </div>
               </div>
-            ))}
+            ) : featuredJobs.length === 0 ? (
+              // Empty state
+              <div className="col-span-3 text-center py-8">
+                <div className="bg-white rounded-lg border border-slate-200 p-6 max-w-md mx-auto">
+                  <p className="text-slate-600">
+                    No featured jobs available at the moment.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              // Jobs list
+              featuredJobs.map((job, index) => (
+                <div
+                  key={index}
+                  className="bg-white rounded-lg border border-slate-200 overflow-hidden hover:shadow-md transition"
+                >
+                  <div className="p-5">
+                    <div className="mb-3 flex justify-between">
+                      <h3 className="font-bold text-lg text-blue-600">
+                        {job.jobTitle}
+                      </h3>
+                      <button className="text-slate-400 hover:text-blue-600">
+                        <i className="far fa-bookmark"></i>
+                      </button>
+                    </div>
+
+                    <div className="flex items-center text-slate-700 mb-2">
+                      <Building size={16} className="mr-2" />
+                      {job.companyName}
+                    </div>
+
+                    <div className="flex items-center text-slate-700 mb-4">
+                      <MapPin size={16} className="mr-2" />
+                      {job.jobLocation}
+                    </div>
+
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      <span className="bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-sm">
+                        <i className="fas fa-briefcase mr-1"></i>{" "}
+                        {job.salaryMin}
+                      </span>
+                      <span className="bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-sm">
+                        <i className="fas fa-rupee-sign mr-1"></i>{" "}
+                        {job.salaryMax}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-slate-500">
+                        Posted:{" "}
+                        {job.createdAtUnix
+                          ? new Date(
+                              job.createdAtUnix * 1000
+                            ).toLocaleDateString()
+                          : "N/A"}
+                      </span>
+                      <Link
+                        href={`/jobs/${job.id}`}
+                        className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+                      >
+                        View Details
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </section>
@@ -462,7 +538,7 @@ export default function Home() {
                 </li>
                 <li>
                   <Link
-                    href="/employer-login"
+                    href="/login"
                     className="text-slate-400 hover:text-white transition"
                   >
                     Employer Login

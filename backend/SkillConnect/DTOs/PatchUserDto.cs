@@ -13,7 +13,6 @@ namespace SkillConnect.Dtos
         public string? Trade { get; set; }
         public string? OtherTrade { get; set; }
         public string? Address { get; set; }
-        public string? Mandal { get; set; }
         public string? District { get; set; }
         public int? PassYear { get; set; }
         public decimal? Percentage { get; set; }

@@ -9,7 +9,7 @@ type FetchServiceOptions = {
   
   type FetchServiceResponse<T> = T; // Generic response type for flexibility
   
-  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5145/api';
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5145/api';
   
   export const fetchService = async <T>({
     method,
@@ -45,8 +45,7 @@ type FetchServiceOptions = {
     const timeoutId = setTimeout(() => controller.abort(), timeout);
   
     try {
-
-      console.log(`Fetching from: ${API_BASE_URL}${endpoint}`);
+      console.log(`Fetching from: ${url}`);
 
       // Perform the fetch
       const response = await fetch(url, { ...options, signal: controller.signal });
@@ -57,7 +56,8 @@ type FetchServiceOptions = {
       // Check if response is ok
       if (!response.ok) {
         const errorResponse = await response.text();
-      console.error(`Error response: ${errorResponse}`);
+        console.error(`Error response from ${url}:`, errorResponse);
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorResponse}`);
       }
   
       // Parse JSON response (if applicable)
@@ -75,7 +75,13 @@ type FetchServiceOptions = {
         throw new Error('Request timed out');
       }
   
+      // Handle network errors (like when API server is not running)
+      if (error instanceof TypeError && error.message === 'Failed to fetch') {
+        throw new Error('Unable to connect to the server. Please try again later.');
+      }
+  
       if (error instanceof Error) {
+        console.error(`Fetch error for ${url}:`, error);
         throw error;
       }
   

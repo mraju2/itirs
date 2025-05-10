@@ -1,10 +1,27 @@
 "use client";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { UserRegistrationData } from "@/types/user";
-import { TRADE_OPTIONS } from "../app/constants/trades"; // Ensure the correct path
+import dynamic from "next/dynamic";
+import { supabase } from "@/lib/superbase-clinet"; // ✅ adjust the path
+import { userService } from "@/services/user-service";
+
+const StateAsyncSelect = dynamic(
+  () => import("./state-select").then((mod) => mod.StateAsyncSelect),
+  { ssr: false }
+);
+
+const DistrictAsyncSelect = dynamic(
+  () => import("./district-select").then((mod) => mod.DistrictAsyncSelect),
+  { ssr: false }
+);
+
+const TradeAsyncSelect = dynamic(
+  () => import("./trade-select").then((mod) => mod.TradeAsyncSelect),
+  { ssr: false }
+);
 
 interface FormData {
   firstName: string;
@@ -27,11 +44,33 @@ interface FormData {
   about: string;
 }
 
-const UserRegistration: React.FC = () => {
+export const UserRegistration: React.FC = () => {
+  const [stateId, setStateId] = useState<number | null>(null);
+  const [districtId, setDistrictId] = useState<number | null>(null);
+  const [selectedTrades, setSelectedTrades] = useState<number[]>([]);
+  const [supabaseUserId, setSupabaseUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchUserId = async () => {
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser();
+
+      if (error || !user) {
+        console.error("User not logged in or error:", error?.message);
+        return;
+      }
+
+      setSupabaseUserId(user.id); // 👇 Store it in state
+    };
+
+    fetchUserId();
+  }, []);
+
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors },
   } = useForm<FormData>({
     defaultValues: {
@@ -55,47 +94,60 @@ const UserRegistration: React.FC = () => {
     },
   });
 
-  const selectedTrade = watch("trade");
-
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     try {
+      if (!supabaseUserId) {
+        toast.error("User is not authenticated.");
+        return;
+      }
+
       const formattedData: UserRegistrationData = {
         ...data,
-        dateOfBirth: Math.floor(new Date(data.dateOfBirth).getTime() / 1000), // Convert to Unix timestamp (seconds)
-        passYear: Number(data.passYear), // Ensure numeric fields are properly formatted
+        id: supabaseUserId,
+        dateOfBirth: Math.floor(new Date(data.dateOfBirth).getTime() / 1000),
+        passYear: Number(data.passYear),
         percentage: Number(data.percentage),
         salaryExpectation: Number(data.salaryExpectation),
+        stateId: stateId || 0,
+        districtId: districtId || 0,
+        tradeId: selectedTrades[0],
       };
 
       if (!formattedData.otherTrade) {
-        delete formattedData.otherTrade; // Remove otherTrade if empty
+        delete formattedData.otherTrade;
       }
 
-      toast.success("Form submitted successfully!", {
+      // Use userService to create registration
+      await userService.createRegistration(formattedData);
+
+      toast.success("Registration completed successfully!", {
         position: "top-right",
         autoClose: 3000,
       });
+
+      // Optionally redirect or perform other actions after successful registration
+      // window.location.href = '/dashboard'; // Uncomment if you want to redirect
     } catch (error) {
-      console.error("Submission error:", error);
-      toast.error("Failed to submit the form. Please try again.", {
-        position: "top-right",
-        autoClose: 3000,
-      });
+      console.error("Registration error:", error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Failed to register. Please try again.",
+        {
+          position: "top-right",
+          autoClose: 3000,
+        }
+      );
     }
   };
 
   // Calculate max and min dates for date of birth input
   const calculateDateLimits = () => {
     const today = new Date();
-
-    // Min date (50 years ago)
     const minDate = new Date();
     minDate.setFullYear(today.getFullYear() - 50);
-
-    // Max date (15 years ago)
     const maxDate = new Date();
     maxDate.setFullYear(today.getFullYear() - 15);
-
     return {
       min: minDate.toISOString().split("T")[0],
       max: maxDate.toISOString().split("T")[0],
@@ -106,8 +158,7 @@ const UserRegistration: React.FC = () => {
 
   return (
     <div className="flex flex-col lg:flex-row min-h-screen w-full">
-      {/* Form Section - Now 50% width */}
-      <div className="w-full lg:w-3/5 bg-gradient-to-br from-blue-50 to-indigo-100 py-4 px-2 sm:px-6 lg:px-8">
+      <div className="w-full bg-gradient-to-br from-blue-50 to-indigo-100 py-4 px-2 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
           <div className="px-4 py-6 sm:px-8 sm:py-8 bg-gradient-to-r from-indigo-600 to-blue-500">
             <h1 className="text-2xl font-bold text-white text-center">
@@ -126,9 +177,9 @@ const UserRegistration: React.FC = () => {
               {/* First Name */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  a. First Name (as per SSC)
+                  a. First Name
                   <span className="block text-xs text-gray-500 mt-1">
-                    మొదటి పేరు (SSC ప్రకారం)
+                    మొదటి పేరు
                   </span>
                 </label>
                 <input
@@ -159,9 +210,9 @@ const UserRegistration: React.FC = () => {
               {/* Last Name */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  b. Last Name (as per SSC)
+                  b. Last Name
                   <span className="block text-xs text-gray-500 mt-1">
-                    ఇంటి పేరు (SSC ప్రకారం)
+                    ఇంటి పేరు
                   </span>
                 </label>
                 <input
@@ -247,7 +298,7 @@ const UserRegistration: React.FC = () => {
                 </p>
               </div>
 
-              {/* Trade */}
+              {/* Trade Selection */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   e. Trade
@@ -255,50 +306,10 @@ const UserRegistration: React.FC = () => {
                     వృత్తి
                   </span>
                 </label>
-                <select
-                  {...register("trade", {
-                    required: "Trade selection is required",
-                  })}
-                  className={`block w-full rounded-md border ${
-                    errors.trade ? "border-red-500" : "border-gray-300"
-                  } px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 sm:text-sm appearance-none bg-white text-gray-700`}
-                >
-                  <option value="">Select Trade / వృత్తిని ఎంచుకోండి</option>
-                  {TRADE_OPTIONS.map((trade) => (
-                    <option key={trade.value} value={trade.value}>
-                      {trade.label}
-                    </option>
-                  ))}
-                </select>
-
-                {errors.trade && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {errors.trade.message}
-                  </p>
-                )}
-
-                {selectedTrade === "Others" && (
-                  <div className="mt-2">
-                    <input
-                      type="text"
-                      placeholder="Specify your trade / మీ వృత్తిని పేర్కొనండి"
-                      {...register("otherTrade", {
-                        required:
-                          selectedTrade === "Others"
-                            ? "Please specify your trade"
-                            : false,
-                      })}
-                      className={`block w-full rounded-md border ${
-                        errors.otherTrade ? "border-red-500" : "border-gray-300"
-                      } px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 sm:text-sm text-gray-700`}
-                    />
-                    {errors.otherTrade && (
-                      <p className="mt-1 text-sm text-red-600">
-                        {errors.otherTrade.message}
-                      </p>
-                    )}
-                  </div>
-                )}
+                <TradeAsyncSelect
+                  value={selectedTrades}
+                  onChange={(trades) => setSelectedTrades(trades)}
+                />
               </div>
 
               {/* Address */}
@@ -326,54 +337,20 @@ const UserRegistration: React.FC = () => {
                 )}
               </div>
 
-              {/* Mandal */}
+              {/* State and District Selection */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  g. Mandal
-                  <span className="block text-xs text-gray-500 mt-1">
-                    మండలం
-                  </span>
-                </label>
-                <input
-                  type="text"
-                  placeholder="Enter your mandal"
-                  {...register("mandal", {
-                    required: "Mandal is required",
-                  })}
-                  className={`block w-full rounded-md border ${
-                    errors.mandal ? "border-red-500" : "border-gray-300"
-                  } px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 sm:text-sm text-gray-700`}
+                <StateAsyncSelect
+                  value={stateId}
+                  onChange={(id) => setStateId(id)}
                 />
-                {errors.mandal && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {errors.mandal.message}
-                  </p>
-                )}
               </div>
 
-              {/* District */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  h. District
-                  <span className="block text-xs text-gray-500 mt-1">
-                    జిల్లా
-                  </span>
-                </label>
-                <input
-                  type="text"
-                  placeholder="Enter your district"
-                  {...register("district", {
-                    required: "District is required",
-                  })}
-                  className={`block w-full rounded-md border ${
-                    errors.district ? "border-red-500" : "border-gray-300"
-                  } px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 sm:text-sm text-gray-700`}
+                <DistrictAsyncSelect
+                  stateId={stateId}
+                  value={districtId}
+                  onChange={(id) => setDistrictId(id)}
                 />
-                {errors.district && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {errors.district.message}
-                  </p>
-                )}
               </div>
 
               {/* Year of Pass and Percentage */}
@@ -488,7 +465,7 @@ const UserRegistration: React.FC = () => {
                 )}
               </div>
 
-              {/* Interested to work */}
+              {/* Work Location */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   l. Interested to work
@@ -539,9 +516,7 @@ const UserRegistration: React.FC = () => {
                       message: "Enter a valid 10-digit Indian mobile number",
                     },
                     onChange: (e) => {
-                      // Remove any non-digit characters
                       e.target.value = e.target.value.replace(/\D/g, "");
-                      // Limit to 10 digits
                       if (e.target.value.length > 10) {
                         e.target.value = e.target.value.slice(0, 10);
                       }
@@ -650,61 +625,6 @@ const UserRegistration: React.FC = () => {
           </form>
         </div>
       </div>
-
-      {/* Banner Section - Now 50% width */}
-      <div className="w-full lg:w-2/5 bg-black text-white flex flex-col justify-center items-center relative min-h-[300px] lg:min-h-screen">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage:
-              "url(https://images.unsplash.com/photo-1534972195531-d756b9bfa9f2?q=80&w=2070&auto=format&fit=crop)",
-            opacity: 0.5,
-          }}
-        />
-        <div className="w-full lg:w-2/5 bg-black text-white flex flex-col justify-center items-center relative min-h-[300px] lg:min-h-screen">
-          <div
-            className="absolute inset-0 bg-cover bg-center"
-            style={{
-              backgroundImage:
-                "url(https://images.unsplash.com/photo-1534972195531-d756b9bfa9f2?q=80&w=2070&auto=format&fit=crop)",
-              opacity: 0.5,
-            }}
-          />
-          <div className="relative z-10 text-center max-w-lg">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 tracking-wider">
-              SKILLS<span className="text-indigo-400">CONNECT</span>
-            </h1>
-            <p className="text-lg sm:text-xl lg:text-2xl font-light mb-8">
-              ONE CONNECT, MANY OPPORTUNITIES
-            </p>
-            <div className="w-24 h-1 bg-indigo-500 mx-auto mb-8"></div>
-            <p className="text-sm sm:text-base max-w-md mx-auto">
-              Register today to connect with top employers looking for skilled
-              ITI professionals across various industries.
-            </p>
-            <div className="grid grid-cols-2 gap-4 mt-8">
-              <div className="bg-black bg-opacity-50 p-4 rounded-lg border border-indigo-300">
-                <h3 className="text-indigo-300 font-semibold mb-2">
-                  Career Growth
-                </h3>
-                <p className="text-sm">
-                  Access to quality job opportunities with trusted employers
-                </p>
-              </div>
-              <div className="bg-black bg-opacity-50 p-4 rounded-lg border border-indigo-300">
-                <h3 className="text-indigo-300 font-semibold mb-2">
-                  Skill Development
-                </h3>
-                <p className="text-sm">
-                  Enhance your technical expertise through industry experience
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };
-
-export default UserRegistration;
