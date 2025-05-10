@@ -49,7 +49,7 @@ export const userService = {
   ): Promise<UserRegistrationResponse> => {
     return await fetchService({
       method: "GET",
-      endpoint: `/user/register/${id}`,
+      endpoint: `/User/${id}`,
     });
   },
 

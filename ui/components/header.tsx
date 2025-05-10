@@ -1,10 +1,20 @@
+// components/Header.tsx
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { usePathname } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth";
+import ProfileDropdown from "./ProfileDropdown";
+import { supabase } from "@/lib/superbase-clinet";
 
 const Header = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { user, loading } = useAuth();
+  const pathname = usePathname();
+  const isRegistrationPage = pathname === "/register";
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+  };
 
   return (
     <header className="bg-white shadow border-b">
@@ -45,31 +55,31 @@ const Header = () => {
         </div>
 
         {/* Right-side actions */}
-        <div className="flex items-center gap-3">
-          {!isLoggedIn ? (
-            <>
-              <Link
-                href="/login"
-                className="px-4 py-1.5 border border-blue-600 text-blue-600 rounded-full text-sm font-medium hover:bg-blue-50 transition"
-              >
-                Login
-              </Link>
-              <Link
-                href="/register"
-                className="px-4 py-1.5 bg-red-500 text-white rounded-full text-sm font-medium hover:bg-red-600 transition"
-              >
-                Register
-              </Link>
-            </>
-          ) : (
-            <button
-              onClick={() => setIsLoggedIn(false)}
-              className="text-red-600 hover:underline text-sm"
-            >
-              Logout
-            </button>
-          )}
-        </div>
+        {!isRegistrationPage && (
+          <div className="flex items-center gap-3">
+            {!user && !loading ? (
+              <>
+                <Link
+                  href="/login"
+                  className="px-4 py-1.5 border border-blue-600 text-blue-600 rounded-full text-sm font-medium hover:bg-blue-50 transition"
+                >
+                  Login
+                </Link>
+                <Link
+                  href="/register"
+                  className="px-4 py-1.5 bg-red-500 text-white rounded-full text-sm font-medium hover:bg-red-600 transition"
+                >
+                  Register
+                </Link>
+              </>
+            ) : user ? (
+              <ProfileDropdown
+                userName={user.user_metadata?.full_name || "User"}
+                onLogout={handleLogout}
+              />
+            ) : null}
+          </div>
+        )}
       </div>
     </header>
   );

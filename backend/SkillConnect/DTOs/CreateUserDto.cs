@@ -5,6 +5,9 @@ namespace SkillConnect.Dtos
 {
     public class CreateUserDto
     {
+
+        [Required, StringLength(100)]
+        public string Id { get; set; }
         [Required, StringLength(100)]
         public string FirstName { get; set; }
 
@@ -25,9 +28,6 @@ namespace SkillConnect.Dtos
 
         [Required, StringLength(100)]
         public string Address { get; set; }
-
-        [Required, StringLength(50)]
-        public string Mandal { get; set; }
 
         [Required]
         public int StateId { get; set; } // ✅ New FK

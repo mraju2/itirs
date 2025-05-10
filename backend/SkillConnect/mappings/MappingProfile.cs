@@ -20,31 +20,44 @@ namespace SkillConnect.Mappings
             CreateMap<CompanyUpdateDto, Company>();
 
             CreateMap<JobPostCreateDto, JobPost>()
-           .ForMember(dest => dest.Id, opt => opt.MapFrom(src => Guid.NewGuid()))
-           .ForMember(dest => dest.CreatedAtUnix, opt => opt.MapFrom(_ => DateTimeOffset.UtcNow.ToUnixTimeSeconds()))
-           .ForMember(dest => dest.JobPostTrades, opt => opt.Ignore()) // You’ll handle this manually
-           .ForMember(dest => dest.Company, opt => opt.Ignore()) // Navigation property, handled by EF
-           .ForMember(dest => dest.Applications, opt => opt.Ignore()) // Navigation property, empty on create
-            .ForMember(dest => dest.Location, opt => opt.MapFrom(src => src.JobLocation)); // <-- Fix is here
+    .ForMember(dest => dest.Id, opt => opt.MapFrom(_ => Guid.NewGuid()))
+    .ForMember(dest => dest.CreatedAtUnix, opt => opt.MapFrom(_ => DateTimeOffset.UtcNow.ToUnixTimeSeconds()))
+    .ForMember(dest => dest.JobPostTrades, opt => opt.Ignore()) // Will be set manually after mapping
+    .ForMember(dest => dest.Company, opt => opt.Ignore())       // Navigation property
+    .ForMember(dest => dest.Applications, opt => opt.Ignore())  // Navigation property
+    .ForMember(dest => dest.StatusHistory, opt => opt.Ignore()) // Optional: if used
+    .ForMember(dest => dest.State, opt => opt.Ignore())         // Navigation property
+    .ForMember(dest => dest.District, opt => opt.Ignore())      // Navigation property
+    .ForMember(dest => dest.Location, opt => opt.MapFrom(src => src.JobLocation))
+    .ForMember(dest => dest.MinimumQualifications,
+               opt => opt.MapFrom(src => Util.ToCsv(src.MinimumQualifications)));
 
 
             // JobPost
             CreateMap<JobPost, JobPostDto>()
-     .ForMember(dest => dest.Trades, opt => opt.MapFrom(src => src.JobPostTrades.Select(jt => jt.Trade)))
-     .ForMember(dest => dest.StateId, opt => opt.MapFrom(src => src.StateId))
-     .ForMember(dest => dest.StateName, opt => opt.MapFrom(src => src.State.Name))
-     .ForMember(dest => dest.DistrictId, opt => opt.MapFrom(src => src.DistrictId))
-     .ForMember(dest => dest.DistrictName, opt => opt.MapFrom(src => src.District.Name))
-    .ForMember(dest => dest.JobLocation, opt => opt.MapFrom(src => src.Location));
+    .ForMember(dest => dest.Trades, opt => opt.MapFrom(src => src.JobPostTrades.Select(jt => jt.Trade)))
+    .ForMember(dest => dest.StateId, opt => opt.MapFrom(src => src.StateId))
+    .ForMember(dest => dest.StateName, opt => opt.MapFrom(src => src.State.Name))
+    .ForMember(dest => dest.DistrictId, opt => opt.MapFrom(src => src.DistrictId))
+    .ForMember(dest => dest.DistrictName, opt => opt.MapFrom(src => src.District.Name))
+    .ForMember(dest => dest.JobLocation, opt => opt.MapFrom(src => src.Location))
+    .ForMember(dest => dest.MinimumQualifications,
+               opt => opt.MapFrom(src => Util.FromCsv(src.MinimumQualifications)));
 
 
 
-            CreateMap<JobPostDto, JobPost>(); // for returning data, not creating directly
+
+            CreateMap<JobPostDto, JobPost>()
+    .ForMember(dest => dest.Location, opt => opt.MapFrom(src => src.JobLocation))
+    .ForMember(dest => dest.MinimumQualifications,
+               opt => opt.MapFrom(src => Util.ToCsv(src.MinimumQualifications)));
+
             CreateMap<JobPostUpdateDto, JobPost>()
     .ForMember(dest => dest.Id, opt => opt.MapFrom(src => Guid.Parse(src.Id.ToString())))
     .ForMember(dest => dest.JobPostTrades, opt => opt.Ignore())
-    .ForMember(dest => dest.Location, opt => opt.MapFrom(src => src.JobLocation)); // <-- Fix is here
-                                                                                   // You may handle trades manually if needed
+    .ForMember(dest => dest.Location, opt => opt.MapFrom(src => src.JobLocation))
+    .ForMember(dest => dest.MinimumQualifications,
+               opt => opt.MapFrom(src => Util.ToCsv(src.MinimumQualifications)));
 
 
             // JobApplication

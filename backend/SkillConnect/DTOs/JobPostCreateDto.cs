@@ -78,6 +78,7 @@ namespace SkillConnect.Dtos
         [Range(0, 40)]
         public int ExperienceMin { get; set; }
 
+
         [Range(0, 50)]
         public int? ExperienceMax { get; set; }
 
@@ -90,5 +91,8 @@ namespace SkillConnect.Dtos
         [Required]
         [MinLength(1, ErrorMessage = "At least one trade must be selected.")]
         public List<int> TradeIds { get; set; } = new();
+
+        public List<MinimumQualification> MinimumQualifications { get; set; } = new();
+
     }
 }

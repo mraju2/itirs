@@ -102,8 +102,11 @@ namespace SkillConnect.Models
         public District District { get; set; } = null!;
         public List<JobApplication> Applications { get; set; } = new();
         public List<JobPostTrade> JobPostTrades { get; set; } = new();
-
         public List<JobPostStatusHistory> StatusHistory { get; set; } = new();
+
+        [Required]
+        public string MinimumQualifications { get; set; } = string.Empty;
+
 
     }
 }

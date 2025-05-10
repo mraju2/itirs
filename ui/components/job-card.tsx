@@ -1,7 +1,15 @@
 import React from "react";
 import { useRouter } from "next/navigation";
-import { BriefcaseIcon, MapPinIcon, RupeeIcon, BookmarkIcon } from "../icons";
-import { JobPost } from "../types/jobPost"; // Updated DTO-based interface
+import {
+  BriefcaseIcon,
+  MapPinIcon,
+  RupeeIcon,
+  BookmarkIcon,
+  BuildingIcon,
+  GraduationCap,
+  CalendarIcon,
+} from "../icons";
+import { JobPost } from "../types/jobpost";
 
 interface JobCardProps {
   job: JobPost;
@@ -14,73 +22,86 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
     router.push(`/jobs/${job.id}`);
   };
 
-  const experience = job.experienceMin ?? 0;
-  const salaryInfo =
+  const experience = job.experienceMin
+    ? `${job.experienceMin}+ yrs`
+    : "Fresher";
+  const salary =
     job.salaryMin && job.salaryMax
       ? `₹${job.salaryMin} - ₹${job.salaryMax}`
       : "Not disclosed";
-  const tags = job.trades?.map((t) => t.name) ?? ["ITI", "Electrician"];
-  const location = job.jobLocation || job.district || "Location";
+  const location = job.jobLocation || job.districtName || "Location";
+  const companyName = job.companyName || "Company Name";
+  const jobTitle = job.jobTitle || "Job Title";
+  const qualification = job.jobDescription || "Qualification";
+  const postedDate = job.createdAtUnix
+    ? new Date(job.createdAtUnix * 1000).toLocaleDateString()
+    : "N/A";
 
   return (
     <div
+      className="bg-white rounded-xl border border-slate-200 hover:shadow-md transition p-4 cursor-pointer relative"
       onClick={handleClick}
-      className="group bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition cursor-pointer flex flex-col justify-between min-h-[220px]"
     >
-      {/* Header Section */}
-      <div>
-        <h2 className="text-lg font-semibold text-gray-900 line-clamp-1">
-          {job.jobTitle}
-        </h2>
-        <p className="text-sm text-gray-600 mt-1 line-clamp-1">
-          {job.companyName}
-        </p>
+      {/* Title + Save Icon */}
+      <div className="flex justify-between items-start mb-2">
+        <div>
+          <h3 className="text-base font-semibold text-slate-900 mb-1">
+            {jobTitle}
+          </h3>
+          <div className="flex items-center text-sm text-slate-600">
+            <BuildingIcon className="w-4 h-4 mr-1" />
+            {companyName}
+          </div>
+        </div>
+        <button
+          className="text-slate-400 hover:text-blue-600"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <BookmarkIcon className="w-5 h-5" />
+        </button>
       </div>
 
-      {/* Meta Info */}
-      <div className="flex flex-wrap gap-4 mt-3 text-sm text-gray-700">
-        <div className="flex items-center gap-1">
-          <BriefcaseIcon className="w-4 h-4" />
-          <span>{experience} Yrs</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <RupeeIcon className="w-4 h-4" />
-          <span>{salaryInfo}</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <MapPinIcon className="w-4 h-4" />
-          <span>{location}</span>
-        </div>
+      {/* Experience | Salary | Location */}
+      <div className="flex flex-wrap text-sm text-slate-700 gap-x-3 mb-2">
+        <span className="flex items-center">
+          <BriefcaseIcon className="w-4 h-4 mr-1" />
+          {experience}
+        </span>
+        <span>|</span>
+        <span className="flex items-center">
+          <RupeeIcon className="w-4 h-4 mr-1" />
+          {salary}
+        </span>
+        <span>|</span>
+        <span className="flex items-center">
+          <MapPinIcon className="w-4 h-4 mr-1" />
+          {location}
+        </span>
       </div>
 
-      {/* Description Snippet */}
-      <p className="text-sm text-gray-600 mt-3 line-clamp-2">
-        {job.jobDescription.slice(0, 100)}...
-      </p>
+      {/* Qualification */}
+      <p className="text-sm text-slate-600 truncate mb-2">{qualification}</p>
 
-      {/* Tags */}
-      <div className="flex flex-wrap mt-3 gap-2 text-xs text-gray-500 max-h-[48px] overflow-hidden">
-        {tags.map((tag) => (
-          <span
-            key={tag}
-            className="px-2 py-1 bg-gray-100 rounded-full whitespace-nowrap"
-          >
-            {tag}
-          </span>
-        ))}
+      {/* Employment Type */}
+      <div className="flex items-center text-xs text-slate-500 mb-2">
+        <GraduationCap className="w-4 h-4 mr-1" />
+        {job.employmentType ?? "Full-time"}
       </div>
 
       {/* Footer */}
-      <div className="flex justify-between items-center mt-4 text-xs text-gray-400">
-        <span>1 day ago</span>
+      <div className="flex justify-between text-xs text-slate-500">
+        <span className="flex items-center">
+          <CalendarIcon className="w-3.5 h-3.5 mr-1" />
+          Posted: {postedDate}
+        </span>
         <button
+          className="text-blue-600 font-medium hover:underline text-sm"
           onClick={(e) => {
-            e.stopPropagation(); // Prevent card click
+            e.stopPropagation();
+            handleClick();
           }}
-          className="flex items-center gap-1 text-gray-500 hover:text-gray-700"
         >
-          <BookmarkIcon className="w-4 h-4" />
-          <span>Save</span>
+          View Details
         </button>
       </div>
     </div>

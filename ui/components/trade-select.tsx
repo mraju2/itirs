@@ -3,11 +3,7 @@
 
 import React, { useEffect, useState } from "react";
 import { tradeService } from "@/services/trade-service";
-
-interface Trade {
-  id: string;
-  name: string;
-}
+import { Trade } from "@/types/trade";
 
 interface Props {
   value: number[];
@@ -54,7 +50,7 @@ export const TradeAsyncSelect: React.FC<Props> = ({ value, onChange }) => {
         ) : (
           trades.map((trade) => (
             <option key={trade.id} value={trade.id} className="text-black">
-              {trade.name}
+              {trade.name} {trade.nameInTelugu ? `(${trade.nameInTelugu})` : ""}
             </option>
           ))
         )}

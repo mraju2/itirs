@@ -1,4 +1,5 @@
 export interface UserRegistrationData {
+  id:string;
     firstName: string;
     lastName: string;
     fatherName: string;
@@ -6,8 +7,8 @@ export interface UserRegistrationData {
     trade: string;
     otherTrade?: string;
     address: string; // ✅ Change casing to match API
-    mandal: string;
-    district: string;
+    stateId: number;
+    districtId: number;
     passYear: number;
     percentage: number;
     experience: string;
@@ -17,5 +18,6 @@ export interface UserRegistrationData {
     email: string;
     itiName: string;
     about: string;
+    tradeId: number;
   }
   

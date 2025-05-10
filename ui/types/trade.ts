@@ -1,6 +1,6 @@
 export interface Trade {
-  tradeId: string;
-  tradeName: string;
-  tradeNameTelugu?: string;
-  }
+  id: string;
+  name: string;
+  nameInTelugu?: string;
+}
   

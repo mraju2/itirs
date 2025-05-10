@@ -7,18 +7,16 @@ export const metadata = {
   description: "ITI Students Job Platform",
 };
 
-export default function RootLayout({
+export default function UserLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body >
-        <Header />
-        <main className="min-h-[80vh] px-4 sm:px-8">{children}</main>
-        <Footer />
-      </body>
-    </html>
+    <>
+      <Header />
+      <main className="min-h-[80vh] px-4 sm:px-8">{children}</main>
+      <Footer />
+    </>
   );
 }

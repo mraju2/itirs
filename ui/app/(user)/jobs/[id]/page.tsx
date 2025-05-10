@@ -1,7 +1,7 @@
 import React from "react";
 import { notFound } from "next/navigation";
-import { jobPostService } from "../../../services/job-post-service"; // Adjust the import path as necessary
-import { JobPost } from "../../../types/jobPost"; // Adjust the import path as necessaryimport { JobPostDto } from "../../../types/jobpost"; // Adjust the import path as necessary
+import { jobPostService } from "../../../../services/job-post-service"; // Adjust the import path as necessary
+import { JobPost } from "../../../../types/jobPost"; // Adjust the import path as necessaryimport { JobPostDto } from "../../../types/jobpost"; // Adjust the import path as necessary
 
 type Params = {
   params: {

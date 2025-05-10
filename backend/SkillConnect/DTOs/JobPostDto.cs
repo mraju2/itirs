@@ -46,5 +46,8 @@ namespace SkillConnect.Dtos
         public JobPostStatus Status { get; set; }
 
         public List<TradeDto> Trades { get; set; } = new();
+
+        public List<MinimumQualification> MinimumQualifications { get; set; } = new();
+
     }
 }

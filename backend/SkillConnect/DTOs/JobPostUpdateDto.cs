@@ -79,5 +79,8 @@ namespace SkillConnect.Dtos
 
         [Required]
         public JobPostStatus Status { get; set; }
+
+        public List<MinimumQualification> MinimumQualifications { get; set; } = new();
+
     }
 }
