@@ -6,3 +6,4 @@ export { BookmarkIcon } from "./book-mark-icon";
 export { BuildingIcon} from "./building-icon";
 export { CalendarIcon } from "./calander-icon";
 export { GraduationCap } from "./graducation-cap-icon"
+export { CheckCircleIcon } from "./check-circle-icon"
