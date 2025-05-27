@@ -6,7 +6,9 @@ namespace SkillConnect.Dtos
 {
     public class JobApplicationCreateDto
     {
-        public int JobPostId { get; set; }
+        [Required]
+        public Guid UserId { get; set; }
+        public required Guid JobPostId { get; set; }
         public string ApplicantName { get; set; } = null!;
         public string ApplicantPhone { get; set; } = null!;
         public string? ApplicantEmail { get; set; }

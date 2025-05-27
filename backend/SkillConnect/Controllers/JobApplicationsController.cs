@@ -33,10 +33,35 @@ namespace SkillConnect.Controllers
         [HttpPost]
         public async Task<IActionResult> ApplyToJob([FromBody] JobApplicationCreateDto dto)
         {
-            await _applicationService.ApplyAsync(dto);
-            return Ok(new { message = "Application submitted successfully." });
-        }
+            if (!ModelState.IsValid)
+            {
+                // Debug why it's invalid
+                foreach (var error in ModelState)
+                {
+                    Console.WriteLine($"Key: {error.Key}");
+                    foreach (var err in error.Value.Errors)
+                    {
+                        Console.WriteLine($"  Error: {err.ErrorMessage}");
+                    }
+                }
+                return BadRequest(ModelState);
+            }
 
+            try
+            {
+                Console.WriteLine("✅ Model binding successful. Proceeding...");
+                await _applicationService.ApplyAsync(dto);
+                return Ok(new { message = "Application submitted successfully." });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while processing your application." });
+            }
+        }
 
 
         [HttpGet("job/{jobPostId}")]
@@ -52,6 +77,5 @@ namespace SkillConnect.Controllers
                 return StatusCode(500, new { title = "Internal Server Error", message = "An unexpected error occurred." });
             }
         }
-
     }
 }

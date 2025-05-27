@@ -1,5 +1,5 @@
 import fetchService from "./fetch";
-import { JobPost, JobPostCreate, JobPostUpdate, JobPostStatus } from "../types/jobpost"
+import { JobPost, JobPostCreate, JobPostUpdate, JobPostStatus, JobApplicationCreate, JobApplication } from "../types/jobpost"
 export type JobPostResponse = JobPost & {
   id: number;
   createdAt?: string;
@@ -157,6 +157,41 @@ export const jobPostService = {
       });
     } catch (error) {
       console.error(`Error updating job status for ID ${jobPostId}:`, error);
+      throw error;
+    }
+  },
+
+
+   /**
+   * Submit a job application
+   * @param application - Job application details
+   */
+  applyForJob: async (application: JobApplicationCreate): Promise<void> => {
+    try {
+      await fetchService({
+        method: 'POST',
+        endpoint: 'jobapplications',
+        body: JSON.parse(JSON.stringify(application)),
+        contentType: 'application/json',
+      });
+    } catch (error) {
+      console.error('Error submitting job application:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Get applications for a specific job post
+   * @param jobId - Job post ID
+   */
+  getApplicationsByJobId: async (jobId: string): Promise<JobApplication[]> => {
+    try {
+      return await fetchService<JobApplication[]>({
+        method: "GET",
+        endpoint: `jobapplications/job/${jobId}`,
+      });
+    } catch (error) {
+      console.error(`Error fetching applications for job ID ${jobId}:`, error);
       throw error;
     }
   },

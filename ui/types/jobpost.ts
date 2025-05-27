@@ -97,6 +97,24 @@ export type JobPostUpdate = Omit<
 
 };
 
+export type JobApplicationCreate = {
+  jobPostId: string;
+  userId: string;
+  applicantName: string;
+  applicantPhone: string;
+  applicantEmail?: string;
+};
+
+export type JobApplication = {
+  id: string;
+  jobPostId: string;
+  userId: string;
+  applicantName: string;
+  applicantPhone: string;
+  applicantEmail?: string;
+  appliedAtUnix: number;
+};
+
 // View type for frontend rendering
 export type JobPostView = JobPost;
 
