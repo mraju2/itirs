@@ -27,13 +27,13 @@ export default function AuthCallback() {
 
         if (error) {
           console.error("❌ OAuth error:", error, errorDescription);
-          router.replace("/login");
+          router.replace("/login?error=1");
           return;
         }
 
         if (!accessToken) {
           console.error("❌ No access token found in URL");
-          router.replace("/login");
+          router.replace("/login?error=1");
           return;
         }
 
@@ -51,13 +51,13 @@ export default function AuthCallback() {
 
         if (sessionError) {
           console.error("❌ Failed to set session:", sessionError);
-          router.replace("/login");
+          router.replace("/login?error=1");
           return;
         }
 
         if (!session) {
           console.error("❌ No session after setting tokens");
-          router.replace("/login");
+          router.replace("/login?error=1");
           return;
         }
 
@@ -147,16 +147,16 @@ export default function AuthCallback() {
             } else {
               // For other errors, log and redirect to login
               console.error("❌ Error checking profile:", profileError);
-              router.replace("/login");
+              router.replace("/login?error=1");
             }
           }
         } catch (err) {
           console.error("❌ Unexpected error in profile check:", err);
-          router.replace("/login");
+          router.replace("/login?error=1");
         }
       } catch (err) {
         console.error("❌ Unexpected error in callback:", err);
-        router.replace("/login");
+        router.replace("/login?error=1");
       }
     };
 
