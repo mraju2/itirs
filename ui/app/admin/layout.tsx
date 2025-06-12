@@ -16,7 +16,7 @@ export default function AdminLayout({
       {/* Sidebar + main layout below */}
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar with fixed width and full height */}
-        <div className="w-64 shrink-0 overflow-y-auto bg-white border-r">
+        <div className="hidden lg:block w-64 shrink-0 overflow-y-auto bg-white border-r">
           <AdminSidebar />
         </div>
 

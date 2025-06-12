@@ -14,7 +14,7 @@ export const AdminSidebar = () => {
   const pathname = usePathname();
 
   return (
-    <aside className="bg-gray-800 text-white w-64 min-h-screen hidden lg:block">
+    <aside className="bg-gray-800 text-white w-full min-h-screen">
       <div className="p-6 border-b border-gray-700">
         <h2 className="text-2xl font-bold text-indigo-400">Admin Panel</h2>
       </div>
