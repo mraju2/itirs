@@ -32,6 +32,7 @@ const ProfileDropdown = ({ userName, onLogout }: ProfileDropdownProps) => {
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut();
+      document.cookie = "sb-access-token=; path=/; max-age=0";
       onLogout();
       setIsOpen(false);
       router.push("/");

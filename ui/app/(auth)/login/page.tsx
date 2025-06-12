@@ -1,16 +1,29 @@
 // pages/login.tsx
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import { supabase } from "@/lib/superbase-clinet";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useSearchParams } from "next/navigation";
 import { GoogleIcon } from "@/icons/google-icon";
+import { ToastProvider } from "@/components/toast-provider";
 
 export default function Login() {
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const loginError = searchParams.get("error");
+    if (loginError) {
+      toast.error("Login failed");
+    }
+  }, [searchParams]);
+
   const handleGoogleSignIn = async () => {
     try {
+      const redirectUrl = `${window.location.origin}/callback`;
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
+        options: { redirectTo: redirectUrl },
       });
 
       if (error) throw error;
@@ -76,6 +89,7 @@ export default function Login() {
           </div>
         </div>
       </div>
+      <ToastProvider />
     </div>
   );
 }
