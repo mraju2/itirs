@@ -5,6 +5,7 @@ using SkillConnect.Services.Interfaces;
 using SkillConnect.Dtos;
 using System.ComponentModel.DataAnnotations;
 using SkillConnect.Data;
+using SkillConnect.Exceptions;
 
 namespace SkillConnect.Services
 {
@@ -130,14 +131,78 @@ namespace SkillConnect.Services
 
         private void ValidateJobPostDto(JobPostCreateDto dto)
         {
-            if (dto.MaxAge.HasValue && dto.MaxAge < dto.MinAge)
-                throw new ValidationException("MaxAge must be greater than or equal to MinAge.");
+            var errors = new List<string>();
 
+            // Required field validations
+            if (string.IsNullOrWhiteSpace(dto.JobTitle))
+                errors.Add("Job title is required.");
+            if (string.IsNullOrWhiteSpace(dto.JobLocation))
+                errors.Add("Job location is required.");
+            if (string.IsNullOrWhiteSpace(dto.JobDescription))
+                errors.Add("Job description is required.");
+            if (string.IsNullOrWhiteSpace(dto.EmploymentType))
+                errors.Add("Employment type is required.");
+            if (string.IsNullOrWhiteSpace(dto.ApplicationProcess))
+                errors.Add("Application process is required.");
+            if (string.IsNullOrWhiteSpace(dto.GenderRequirement))
+                errors.Add("Gender requirement is required.");
+
+            // Date validations
+            var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            if (dto.ApplicationDeadlineUnix <= now)
+                errors.Add("Application deadline must be in the future.");
+
+            // Age validations
+            if (dto.MinAge < 14 || dto.MinAge > 60)
+                errors.Add("Minimum age must be between 14 and 60 years.");
+            if (dto.MaxAge.HasValue)
+            {
+                if (dto.MaxAge < 14 || dto.MaxAge > 65)
+                    errors.Add("Maximum age must be between 14 and 65 years.");
+                if (dto.MaxAge < dto.MinAge)
+                    errors.Add("Maximum age must be greater than or equal to minimum age.");
+            }
+
+            // Salary validations
+            if (dto.SalaryMin < 0)
+                errors.Add("Minimum salary cannot be negative.");
             if (dto.SalaryMax < dto.SalaryMin)
-                throw new ValidationException("SalaryMax must be greater than or equal to SalaryMin.");
+                errors.Add("Maximum salary must be greater than or equal to minimum salary.");
 
-            if (dto.ExperienceMax.HasValue && dto.ExperienceMax < dto.ExperienceMin)
-                throw new ValidationException("ExperienceMax must be greater than or equal to ExperienceMin.");
+            // Working hours validations
+            if (dto.WorkingHoursMin < 1 || dto.WorkingHoursMin > 12)
+                errors.Add("Minimum working hours must be between 1 and 12 hours.");
+            if (dto.WorkingHoursMax.HasValue)
+            {
+                if (dto.WorkingHoursMax < 1 || dto.WorkingHoursMax > 16)
+                    errors.Add("Maximum working hours must be between 1 and 16 hours.");
+                if (dto.WorkingHoursMax < dto.WorkingHoursMin)
+                    errors.Add("Maximum working hours must be greater than or equal to minimum working hours.");
+            }
+
+            // Experience validations
+            if (dto.ExperienceMin < 0 || dto.ExperienceMin > 40)
+                errors.Add("Minimum experience must be between 0 and 40 years.");
+            if (dto.ExperienceMax.HasValue)
+            {
+                if (dto.ExperienceMax < 0 || dto.ExperienceMax > 50)
+                    errors.Add("Maximum experience must be between 0 and 50 years.");
+                if (dto.ExperienceMax < dto.ExperienceMin)
+                    errors.Add("Maximum experience must be greater than or equal to minimum experience.");
+            }
+
+            // Trade validations
+            if (dto.TradeIds == null || !dto.TradeIds.Any())
+                errors.Add("At least one trade must be selected.");
+
+            // Minimum qualifications validation
+            if (dto.MinimumQualifications == null || !dto.MinimumQualifications.Any())
+                errors.Add("At least one minimum qualification must be selected.");
+
+            if (errors.Any())
+            {
+                throw new SkillConnect.Exceptions.ValidationException(string.Join("\n", errors));
+            }
         }
 
         private JobPost MapToJobPostWithDefaults(JobPostCreateDto dto)

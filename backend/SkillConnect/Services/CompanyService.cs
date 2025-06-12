@@ -3,6 +3,7 @@ using SkillConnect.Dtos;
 using SkillConnect.Models;
 using SkillConnect.Repositories.Interfaces;
 using SkillConnect.Services.Interfaces;
+using SkillConnect.Exceptions;
 
 namespace SkillConnect.Services
 {
@@ -33,28 +34,93 @@ namespace SkillConnect.Services
         {
             try
             {
+                var errors = new List<string>();
+
+                // Required field validations
+                if (string.IsNullOrWhiteSpace(dto.Name))
+                    errors.Add("Company name is required.");
+                if (string.IsNullOrWhiteSpace(dto.Address))
+                    errors.Add("Address is required.");
+                if (string.IsNullOrWhiteSpace(dto.ContactEmail))
+                    errors.Add("Contact email is required.");
+                if (string.IsNullOrWhiteSpace(dto.PrimaryContactPhone))
+                    errors.Add("Primary contact phone is required.");
+                if (dto.StateId <= 0)
+                    errors.Add("State is required.");
+                if (dto.DistrictId <= 0)
+                    errors.Add("District is required.");
+                if (string.IsNullOrWhiteSpace(dto.Pincode))
+                    errors.Add("Pincode is required.");
+
+                // Email validation
+                if (!string.IsNullOrWhiteSpace(dto.ContactEmail))
+                {
+                    try
+                    {
+                        var addr = new System.Net.Mail.MailAddress(dto.ContactEmail);
+                        if (addr.Address != dto.ContactEmail)
+                            errors.Add("Invalid email format.");
+                    }
+                    catch
+                    {
+                        errors.Add("Invalid email format.");
+                    }
+                }
+
+                // Phone number validation
+                if (!string.IsNullOrWhiteSpace(dto.PrimaryContactPhone))
+                {
+                    if (!System.Text.RegularExpressions.Regex.IsMatch(dto.PrimaryContactPhone, @"^\d{10}$"))
+                        errors.Add("Primary contact phone must be a valid 10-digit number.");
+                }
+
+                if (!string.IsNullOrWhiteSpace(dto.SecondaryContactPhone))
+                {
+                    if (!System.Text.RegularExpressions.Regex.IsMatch(dto.SecondaryContactPhone, @"^\d{10}$"))
+                        errors.Add("Secondary contact phone must be a valid 10-digit number.");
+                }
+
+                // Pincode validation
+                if (!string.IsNullOrWhiteSpace(dto.Pincode))
+                {
+                    if (!System.Text.RegularExpressions.Regex.IsMatch(dto.Pincode, @"^\d{6}$"))
+                        errors.Add("Pincode must be a valid 6-digit number.");
+                }
+
+                // Website URL validation (if provided)
+                if (!string.IsNullOrWhiteSpace(dto.WebsiteUrl))
+                {
+                    if (!Uri.TryCreate(dto.WebsiteUrl, UriKind.Absolute, out _))
+                        errors.Add("Invalid website URL format.");
+                }
+
                 // Check for duplicate email or phone
                 var exists = await _repository.ExistsByEmailOrPhoneAsync(dto.ContactEmail, dto.PrimaryContactPhone);
                 if (exists)
                 {
-                    throw new InvalidOperationException("A company with the same email or phone number already exists.");
+                    errors.Add("A company with the same email or phone number already exists.");
+                }
+
+                if (errors.Any())
+                {
+                    throw new ValidationException(string.Join("\n", errors));
                 }
 
                 var entity = _mapper.Map<Company>(dto);
+                await _repository.AddAsync(entity);
 
-                await _repository.AddAsync(entity); // This should include SaveChangesAsync()
-
-                // Return the newly created company (with generated Id)
                 return _mapper.Map<CompanyDto>(entity);
+            }
+            catch (ValidationException ex)
+            {
+                throw new CustomException("Validation Error", ex.Message, 400);
             }
             catch (InvalidOperationException ex)
             {
-                // Can optionally log: _logger.LogWarning(ex, "Validation failed while creating company");
                 throw new CustomException("Validation Error", ex.Message, 400);
             }
             catch (Exception ex)
             {
-                // Can optionally log: _logger.LogError(ex, "Unexpected error during company creation");
                 throw new CustomException("Internal Server Error", "An unexpected error occurred.", 500);
             }
         }

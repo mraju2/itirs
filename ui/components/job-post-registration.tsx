@@ -171,9 +171,26 @@ export const JobPostCreateForm: React.FC = () => {
 
       setValue("districtId", districtId);
       setValue("stateId", String(stateId));
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error creating job post:", err);
-      toast.error("Failed to create job post.");
+
+      // Handle validation errors
+      if (err.response?.data?.errors) {
+        const errors = err.response.data.errors;
+        if (Array.isArray(errors)) {
+          errors.forEach((error: string) => toast.error(error));
+        } else {
+          toast.error(errors);
+        }
+      }
+      // Handle other API errors
+      else if (err.response?.data?.message) {
+        toast.error(err.response.data.message);
+      }
+      // Handle network or other errors
+      else {
+        toast.error("Failed to create job post. Please try again.");
+      }
     }
   };
 

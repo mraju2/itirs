@@ -62,22 +62,46 @@ export const CompanyRegistrationForm: React.FC<
       const payload = {
         ...data,
         stateId,
-        districtId, // ✅ inject districtId here
+        districtId,
       };
-      await companyService.createCompany(payload);
-      toast.success("Company registered!", {
+
+      // Show loading toast
+      const loadingToast = toast.loading("Registering company...", {
         position: window.innerWidth < 640 ? "bottom-center" : "top-right",
       });
+
+      await companyService.createCompany(payload);
+
+      // Dismiss loading toast and show success
+      toast.dismiss(loadingToast);
+      toast.success("Company registered successfully!", {
+        position: window.innerWidth < 640 ? "bottom-center" : "top-right",
+      });
+
       reset();
       setStateId(1); // default back to AP
       setDistrictId(null);
       onSuccess?.();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error registering company:", error);
-      toast.error("Failed to register company. Please try again.", {
-        position: "top-right",
-        autoClose: 3000,
-      });
+
+      // Handle validation errors
+      if (error.response?.data?.errors) {
+        const errors = error.response.data.errors;
+        if (Array.isArray(errors)) {
+          errors.forEach((error: string) => toast.error(error));
+        } else {
+          toast.error(errors);
+        }
+      }
+      // Handle other API errors
+      else if (error.response?.data?.message) {
+        toast.error(error.response.data.message);
+      }
+      // Handle network or other errors
+      else {
+        toast.error("Failed to register company. Please try again.");
+      }
     } finally {
       setIsSubmitting(false);
     }

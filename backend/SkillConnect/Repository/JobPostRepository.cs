@@ -10,6 +10,19 @@ namespace SkillConnect.Repositories
     public class JobPostRepository : IJobPostRepository
     {
         private readonly AppDbContext _context;
+        private readonly Dictionary<string, string> propertyMap = new()
+        {
+            { "jobtitle", "JobTitle" },
+            { "companyname", "CompanyName" },
+            { "employmenttype", "EmploymentType" },
+            { "applicationprocess", "ApplicationProcess" },
+            { "createdat", "CreatedAtUnix" },
+            { "salarymin", "SalaryMin" },
+            { "salarymax", "SalaryMax" },
+            { "workinghours", "WorkingHours" },
+            { "experienceyears", "ExperienceYears" },
+            { "agelimit", "AgeLimit" }
+        };
 
         public JobPostRepository(AppDbContext context)
         {
@@ -178,30 +191,22 @@ namespace SkillConnect.Repositories
                 }
             }
 
-            // Sorting
-            if (!string.IsNullOrWhiteSpace(sortBy))
+            // Apply sorting
+            if (!string.IsNullOrEmpty(sortBy) && propertyMap.TryGetValue(sortBy.ToLower(), out var sortProperty))
             {
-                var sortField = sortBy.Trim().ToLower();
-                Console.WriteLine($"Sorting by: {sortField}");
-
-                sortBy = sortField switch
-                {
-                    "jobtitle" => "JobTitle",
-                    "salarymin" => "SalaryMin",
-                    "salarymax" => "SalaryMax",
-                    "createdat" => "CreatedAtUnix",
-                    "deadline" => "ApplicationDeadlineUnix",
-                    _ => "CreatedAtUnix"
-                };
-
+                Console.WriteLine($"📊 Sorting by: {sortProperty} {(isDescending ? "DESC" : "ASC")}");
                 query = isDescending
-                    ? query.OrderByDescending(e => EF.Property<object>(e, sortBy))
-                    : query.OrderBy(e => EF.Property<object>(e, sortBy));
+                    ? query.OrderByDescending(j => EF.Property<object>(j, sortProperty))
+                    : query.OrderBy(j => EF.Property<object>(j, sortProperty));
             }
             else
             {
-                query = query.OrderByDescending(j => j.ApplicationDeadlineUnix);
+                Console.WriteLine("ℹ️ No sortBy provided, applying default sort by CreatedAtUnix DESC");
+                query = query.OrderByDescending(j => j.CreatedAtUnix);
             }
+
+            // Log final SQL (optional for EF Core)
+            Console.WriteLine($"📥 Final query to execute: {query.ToQueryString()}");
 
             var totalCount = await query.CountAsync();
             Console.WriteLine($"Total matching jobs: {totalCount}");

@@ -1,15 +1,20 @@
 // pages/login.tsx
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { supabase } from "@/lib/superbase-clinet";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useSearchParams } from "next/navigation";
 import { GoogleIcon } from "@/icons/google-icon";
-import { ToastProvider } from "@/components/toast-provider";
+
+
+const LoadingSpinner = () => (
+  <div className="animate-spin h-5 w-5 border-2 border-slate-500 rounded-full border-t-transparent" />
+);
 
 export default function Login() {
   const searchParams = useSearchParams();
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const loginError = searchParams.get("error");
@@ -19,6 +24,7 @@ export default function Login() {
   }, [searchParams]);
 
   const handleGoogleSignIn = async () => {
+    setIsLoading(true);
     try {
       const redirectUrl = `${window.location.origin}/callback`;
       const { error } = await supabase.auth.signInWithOAuth({
@@ -27,11 +33,12 @@ export default function Login() {
       });
 
       if (error) throw error;
-
       toast.success("Redirecting to Google...");
     } catch (error) {
       console.error("Error logging in:", error);
       toast.error(error instanceof Error ? error.message : "Failed to login");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -55,10 +62,17 @@ export default function Login() {
           <div className="space-y-6">
             <button
               onClick={handleGoogleSignIn}
-              className="w-full flex items-center justify-center gap-3 bg-white border border-slate-300 rounded-md shadow-sm py-2 px-4 text-sm font-medium text-slate-700 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              disabled={isLoading}
+              className="w-full flex items-center justify-center gap-3 bg-white border border-slate-300 rounded-md shadow-sm py-2 px-4 text-sm font-medium text-slate-700 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
             >
-              <GoogleIcon className="w-5 h-5" />
-              Login with Google
+              {isLoading ? (
+                <LoadingSpinner />
+              ) : (
+                <>
+                  <GoogleIcon className="w-5 h-5" />
+                  Login with Google
+                </>
+              )}
             </button>
           </div>
 
@@ -89,7 +103,6 @@ export default function Login() {
           </div>
         </div>
       </div>
-      <ToastProvider />
     </div>
   );
 }

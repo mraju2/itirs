@@ -48,13 +48,36 @@
 
             try
             {
+                // Validate required fields
+                if (string.IsNullOrEmpty(dto.Email))
+                    return BadRequest(new { Message = "Email is required" });
+                if (string.IsNullOrEmpty(dto.PhoneNumber))
+                    return BadRequest(new { Message = "Phone number is required" });
+                if (dto.TradeId <= 0)
+                    return BadRequest(new { Message = "Valid trade selection is required" });
+                if (dto.StateId <= 0)
+                    return BadRequest(new { Message = "State selection is required" });
+                if (dto.DistrictId <= 0)
+                    return BadRequest(new { Message = "District selection is required" });
+
                 var createdUser = await _registrationService.CreateRegistrationAsync(dto);
                 return CreatedAtAction(nameof(GetUserById), new { id = createdUser.Id }, createdUser);
             }
             catch (System.Exception ex)
             {
                 _logger.LogError(ex, "Error registering user");
-                return BadRequest(new { Message = ex.Message });
+                
+                // Handle specific error cases
+                if (ex.Message.Contains("Email already exists"))
+                    return Conflict(new { Message = "This email is already registered" });
+                if (ex.Message.Contains("Phone number already exists"))
+                    return Conflict(new { Message = "This phone number is already registered" });
+                
+                return BadRequest(new { 
+                    Message = "Registration failed",
+                    Details = ex.Message,
+                    ErrorType = ex.GetType().Name
+                });
             }
         }
 

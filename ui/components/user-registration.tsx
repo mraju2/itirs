@@ -49,6 +49,7 @@ export const UserRegistration: React.FC = () => {
   const [districtId, setDistrictId] = useState<number | null>(null);
   const [selectedTrades, setSelectedTrades] = useState<number[]>([]);
   const [supabaseUserId, setSupabaseUserId] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const fetchUserId = async () => {
@@ -72,6 +73,7 @@ export const UserRegistration: React.FC = () => {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm<FormData>({
     defaultValues: {
       firstName: "",
@@ -97,7 +99,21 @@ export const UserRegistration: React.FC = () => {
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     try {
       if (!supabaseUserId) {
-        toast.error("User is not authenticated.");
+        toast.error("User is not authenticated. Please log in again.");
+        return;
+      }
+
+      // Validate required selections
+      if (!stateId) {
+        toast.error("Please select your state");
+        return;
+      }
+      if (!districtId) {
+        toast.error("Please select your district");
+        return;
+      }
+      if (!selectedTrades.length) {
+        toast.error("Please select your trade");
         return;
       }
 
@@ -117,27 +133,46 @@ export const UserRegistration: React.FC = () => {
         delete formattedData.otherTrade;
       }
 
-      // Use userService to create registration
-      await userService.createRegistration(formattedData);
+      // Show loading toast
+      const loadingToast = toast.loading("Submitting registration...");
 
-      toast.success("Registration completed successfully!", {
-        position: "top-right",
-        autoClose: 3000,
-      });
+      try {
+        // Use userService to create registration
+        await userService.createRegistration(formattedData);
 
-      // Optionally redirect or perform other actions after successful registration
-      // window.location.href = '/dashboard'; // Uncomment if you want to redirect
-    } catch (error) {
-      console.error("Registration error:", error);
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Failed to register. Please try again.",
-        {
-          position: "top-right",
+        // Update loading toast to success
+        toast.update(loadingToast, {
+          render: "Registration completed successfully!",
+          type: "success",
+          isLoading: false,
           autoClose: 3000,
-        }
-      );
+        });
+
+        // Reset form
+        reset();
+        setStateId(null);
+        setDistrictId(null);
+        setSelectedTrades([]);
+      } catch (error: any) {
+        // Update loading toast to error
+        toast.update(loadingToast, {
+          render:
+            error.response?.data?.Message ||
+            "Registration failed. Please try again.",
+          type: "error",
+          isLoading: false,
+          autoClose: 5000,
+        });
+
+        // Log detailed error for debugging
+        console.error("Registration error:", error.response?.data || error);
+      }
+    } catch (error) {
+      console.error("Unexpected error:", error);
+      toast.error("An unexpected error occurred. Please try again later.", {
+        position: "top-right",
+        autoClose: 5000,
+      });
     }
   };
 
@@ -617,9 +652,12 @@ export const UserRegistration: React.FC = () => {
             <div className="flex justify-center pt-8">
               <button
                 type="submit"
-                className="px-8 py-3 text-base font-medium rounded-md text-white bg-gradient-to-r from-indigo-600 to-blue-500 hover:from-indigo-700 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 shadow-md transition-all duration-200 ease-in-out transform hover:scale-105"
+                disabled={isSubmitting}
+                className={`px-8 py-3 text-base font-medium rounded-md text-white bg-gradient-to-r from-indigo-600 to-blue-500 hover:from-indigo-700 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 shadow-md transition-all duration-200 ease-in-out transform hover:scale-105 ${
+                  isSubmitting ? "opacity-50 cursor-not-allowed" : ""
+                }`}
               >
-                Submit / సమర్పించండి
+                {isSubmitting ? "Submitting..." : "Submit / సమర్పించండి"}
               </button>
             </div>
           </form>

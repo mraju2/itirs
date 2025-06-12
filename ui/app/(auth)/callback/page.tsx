@@ -1,11 +1,16 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/superbase-clinet";
 import { userService } from "@/services/user-service";
+import { LoadingSpinner } from "../../../components/loading-spinner";
 
 export default function AuthCallback() {
   const router = useRouter();
+  const [status, setStatus] = useState<"loading" | "error" | "success">(
+    "loading"
+  );
+  const [errorMessage] = useState("");
 
   useEffect(() => {
     console.log("=== CALLBACK PAGE MOUNTED ===");
@@ -154,6 +159,7 @@ export default function AuthCallback() {
           console.error("❌ Unexpected error in profile check:", err);
           router.replace("/login?error=1");
         }
+        setStatus("success");
       } catch (err) {
         console.error("❌ Unexpected error in callback:", err);
         router.replace("/login?error=1");
@@ -163,14 +169,38 @@ export default function AuthCallback() {
     handleCallback();
   }, [router]);
 
-  return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="text-center">
-        <h2 className="text-xl font-semibold mb-2">Checking your profile...</h2>
-        <p className="text-gray-600">
-          Please wait while we set up your account.
-        </p>
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <LoadingSpinner />
+          <h2 className="mt-4 text-xl font-semibold">
+            Checking your profile...
+          </h2>
+          <p className="mt-2 text-gray-600">
+            Please wait while we set up your account.
+          </p>
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
+
+  if (status === "error") {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-500 mb-4">❌</div>
+          <h2 className="text-xl font-semibold text-red-600">
+            Authentication Failed
+          </h2>
+          <p className="mt-2 text-gray-600">{errorMessage}</p>
+          <p className="mt-4 text-sm text-gray-500">
+            Redirecting to login page...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return null;
 }
