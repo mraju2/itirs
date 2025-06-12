@@ -179,6 +179,14 @@ export const JobPostsTable = ({
                     >
                       Edit
                     </button>
+                    <button
+                      className="text-blue-600 hover:underline"
+                      onClick={() =>
+                        router.push(`/admin/jobs/applications/${job.id}`)
+                      }
+                    >
+                      Applications
+                    </button>
                     <button className="text-red-600 hover:underline">
                       Delete
                     </button>
