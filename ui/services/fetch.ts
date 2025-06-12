@@ -1,10 +1,13 @@
-type FetchServiceOptions = {
+import { z } from 'zod';
+
+type FetchServiceOptions<T> = {
     method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
     endpoint: string; // Dynamic endpoint
     body?: Record<string, unknown> | FormData; // For JSON or FormData
     contentType?: string; // e.g., 'application/json', 'multipart/form-data'
     headers?: Record<string, string>;
     timeout?: number; // Optional timeout in ms, defaults to 3 minutes
+    schema?: z.ZodType<T>; // Add schema for validation
   };
   
   type FetchServiceResponse<T> = T; // Generic response type for flexibility
@@ -18,7 +21,8 @@ type FetchServiceOptions = {
     contentType = 'application/json',
     headers = {},
     timeout = 360000, // Default timeout to 3 minutes
-  }: FetchServiceOptions): Promise<FetchServiceResponse<T>> => {
+    schema,
+  }: FetchServiceOptions<T>): Promise<FetchServiceResponse<T>> => {
     // Construct full URL by attaching endpoint to base URL
     const url = `${API_BASE_URL}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
   
@@ -62,12 +66,25 @@ type FetchServiceOptions = {
   
       // Parse JSON response (if applicable)
       const responseContentType = response.headers.get('Content-Type');
+      let data: unknown;
+  
       if (responseContentType && responseContentType.includes('application/json')) {
-        return (await response.json()) as T;
+        data = await response.json();
+      } else {
+        data = await response.text();
       }
   
-      // Return raw text for non-JSON responses
-      return (await response.text()) as unknown as T;
+      // Validate response data if schema is provided
+      if (schema) {
+        const validationResult = schema.safeParse(data);
+        if (!validationResult.success) {
+          console.error('Validation error:', validationResult.error);
+          throw new Error(`Validation error: ${validationResult.error.message}`);
+        }
+        return validationResult.data;
+      }
+  
+      return data as T;
     } catch (error) {
       clearTimeout(timeoutId);
   

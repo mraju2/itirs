@@ -156,9 +156,9 @@ namespace SkillConnect.Repositories
                     : query.OrderBy(c => EF.Property<object>(c, sortProperty));
             }
             else
-                {
-                    Console.WriteLine("ℹ️ No sortBy provided, applying default sort by CreatedAtUnix ASC");
-                    query = query.OrderBy(c => EF.Property<long>(c, "CreatedAtUnix"));
+            {
+                Console.WriteLine("ℹ️ No sortBy provided, applying default sort by CreatedAtUnix DESC");
+                query = query.OrderByDescending(c => c.CreatedAtUnix);
             }
 
             // Log final SQL (optional for EF Core)

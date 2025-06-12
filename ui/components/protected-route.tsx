@@ -1,34 +1,43 @@
 "use client";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/hooks/useAuth";
-
+import { useAuth } from "../lib/auth-context";
+import { LoadingSpinner } from "../components/loading-spinner";
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  allowedRoles?: string[];
+  requiredRole?: "user" | "company" | "admin";
 }
 
 export const ProtectedRoute = ({
   children,
-  allowedRoles = ["user", "admin"],
+  requiredRole,
 }: ProtectedRouteProps) => {
-  const { user, loading } = useAuth();
+  const { user, isLoading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && !user) {
-      router.push("/login");
+    if (!isLoading && !user) {
+      router.replace("/login");
     } else if (
       user &&
-      allowedRoles &&
-      user.role &&
-      !allowedRoles.includes(user.role)
+      requiredRole &&
+      user.user_metadata.role !== requiredRole
     ) {
-      router.push("/unauthorized");
+      router.replace("/unauthorized");
     }
-  }, [user, loading, router, allowedRoles]);
+  }, [user, isLoading, router, requiredRole]);
 
-  if (loading || !user) return <p>Loading...</p>;
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <LoadingSpinner />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
 
   return <>{children}</>;
 };

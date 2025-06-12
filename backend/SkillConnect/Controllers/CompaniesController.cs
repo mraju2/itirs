@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using SkillConnect.Models;
 using SkillConnect.Services.Interfaces;
 using SkillConnect.Dtos;
+using SkillConnect.Exceptions;
 
 namespace SkillConnect.Controllers
 {

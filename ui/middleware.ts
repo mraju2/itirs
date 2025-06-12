@@ -13,7 +13,7 @@ export async function middleware(request: NextRequest) {
   console.log("Headers:", Object.fromEntries(request.headers.entries()));
   console.log("Cookies:", request.cookies.getAll().map(c => c.name));
 
-  // Publicly accessible routes
+  // Public paths that don't require authentication
   const publicPaths = [
     '/',
     '/login',
@@ -23,34 +23,43 @@ export async function middleware(request: NextRequest) {
     '/contact',
     '/faq',
     '/jobs',
-    /^\/jobs\/[^/]+$/, // Allow /jobs/[id]
+    /^\/jobs\/[^/]+$/,
     '/companies',
+    '/admin',
+    /^\/admin\/.*$/, // This will match all admin routes
   ];
 
-  const isPublic = publicPaths.some((path) =>
-    typeof path === 'string' ? path === pathname : path.test(pathname)
-  );
-  console.log("Is public path:", isPublic);
+  const isPublic = publicPaths.some((path) => {
+    if (typeof path === 'string') {
+      return path === pathname || pathname.startsWith(path + '/');
+    }
+    return path.test(pathname);
+  });
 
-  // Check for Supabase auth token in cookie
+  
+  console.log("Is public path:", isPublic);
+  console.log("Current pathname:", pathname);
+  console.log("Public paths:", publicPaths);
+
+  if (isPublic) {
+    // Public path: allow access, no checks!
+    return NextResponse.next();
+  }
+
+  // Check for auth token
   const token = request.cookies.get('sb-access-token')?.value;
   console.log("Has token:", !!token);
   console.log("Token value:", token ? "present" : "missing");
 
-  // If user has a token, they're authenticated and can access any path
-  if (token) {
-    console.log("✅ User is authenticated, allowing access to:", pathname);
-    return NextResponse.next();
-  }
-
   // If no token and trying to access protected route, redirect to login
-  if (!isPublic) {
+  if (!token && !isPublic) {
     console.log("❌ No token and accessing protected route, redirecting to login");
     url.pathname = '/login';
+    url.searchParams.set('redirect', pathname);
     return NextResponse.redirect(url);
   }
 
-  console.log("✅ Allowing access to public path:", pathname);
+  console.log("✅ Allowing access to path:", pathname);
   return NextResponse.next();
 }
 

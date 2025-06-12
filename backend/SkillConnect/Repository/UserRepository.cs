@@ -151,8 +151,14 @@ namespace SkillConnect.Repositories
                 {
                     "firstname" => isDescending ? query.OrderByDescending(u => u.FirstName) : query.OrderBy(u => u.FirstName),
                     "dateofbirth" => isDescending ? query.OrderByDescending(u => u.DateOfBirth) : query.OrderBy(u => u.DateOfBirth),
-                    _ => query.OrderBy(u => u.FirstName)
+                    "registrationdate" => isDescending ? query.OrderByDescending(u => u.RegistrationDate) : query.OrderBy(u => u.RegistrationDate),
+                    _ => query.OrderByDescending(u => u.RegistrationDate) // Default sort
                 };
+            }
+            else
+            {
+                // Default sorting by registration date (newest first)
+                query = query.OrderByDescending(u => u.RegistrationDate);
             }
 
             var total = await query.CountAsync();

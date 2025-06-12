@@ -1,5 +1,11 @@
 import fetchService from "./fetch";
-import { UserRegistrationData } from "../types/user";
+import { 
+  UserRegistrationData, 
+  UserRegistrationResponse, 
+  userRegistrationSchema, 
+  userRegistrationResponseSchema,
+  userRegistrationResponseArraySchema 
+} from '../validations/user';
 
 export type UserRegistrationRequest = {
   endpoint: string;
@@ -8,36 +14,16 @@ export type UserRegistrationRequest = {
   headers?: Record<string, string>;
 };
 
-export type UserRegistrationResponse = {
-  id: string;
-  firstName: string;
-  lastName: string;
-  fatherName: string;
-  dateOfBirth: number;
-  trade: string;
-  otherTrade?: string;
-  address: string;
-  mandal: string;
-  district: string;
-  passYear: number;
-  percentage: number;
-  experience: string;
-  salaryExpectation: number;
-  workLocation: string;
-  phoneNumber: string;
-  email: string;
-  itiName: string;
-  about: string;
-  createdAt: string;
-  updatedAt: string;
-};
-
 export const userService = {
   /**
    * Fetch all user registrations from the API
    */
   getAllRegistrations: async (): Promise<UserRegistrationResponse[]> => {
-    return await fetchService({ method: "GET", endpoint: "/user" });
+    return await fetchService<UserRegistrationResponse[]>({
+      method: "GET",
+      endpoint: "/user",
+      schema: userRegistrationResponseArraySchema
+    });
   },
 
   /**
@@ -47,9 +33,10 @@ export const userService = {
   getRegistrationById: async (
     id: string
   ): Promise<UserRegistrationResponse> => {
-    return await fetchService({
+    return await fetchService<UserRegistrationResponse>({
       method: "GET",
       endpoint: `/User/${id}`,
+      schema: userRegistrationResponseSchema
     });
   },
 
@@ -57,14 +44,19 @@ export const userService = {
    * Create a new user registration (JSON Object only)
    * @param data - User registration data as JSON
    */
-  createRegistration: async <T = UserRegistrationResponse>(
-    data: UserRegistrationData
-  ): Promise<T> => {
-    return await fetchService<T>({
+  createRegistration: async (data: UserRegistrationData): Promise<UserRegistrationResponse> => {
+    // Validate the input data
+    const validationResult = userRegistrationSchema.safeParse(data);
+    if (!validationResult.success) {
+      throw new Error(`Validation error: ${validationResult.error.message}`);
+    }
+
+    return await fetchService<UserRegistrationResponse>({
       method: "POST",
       endpoint: "/User",
       body: JSON.parse(JSON.stringify(data)),
       contentType: "application/json",
+      schema: userRegistrationResponseSchema,
     });
   },
 
@@ -73,15 +65,19 @@ export const userService = {
    * @param id - The ID of the user registration to update
    * @param data - Updated user registration data as JSON
    */
-  updateRegistration: async <T = UserRegistrationResponse>(
-    id: string,
-    data: UserRegistrationData
-  ): Promise<T> => {
-    return await fetchService<T>({
+  updateRegistration: async (id: string, data: UserRegistrationData): Promise<UserRegistrationResponse> => {
+    // Validate the input data
+    const validationResult = userRegistrationSchema.safeParse(data);
+    if (!validationResult.success) {
+      throw new Error(`Validation error: ${validationResult.error.message}`);
+    }
+
+    return await fetchService<UserRegistrationResponse>({
       method: "PUT",
       endpoint: `/user/register/${id}`,
       body: JSON.parse(JSON.stringify(data)),
       contentType: "application/json",
+      schema: userRegistrationResponseSchema,
     });
   },
 
@@ -103,9 +99,10 @@ export const userService = {
   getRegistrationsByTrade: async (
     trade: string
   ): Promise<UserRegistrationResponse[]> => {
-    return await fetchService({
+    return await fetchService<UserRegistrationResponse[]>({
       method: "GET",
       endpoint: `/user/register/trade/${trade}`,
+      schema: userRegistrationResponseArraySchema
     });
   },
 
@@ -116,9 +113,10 @@ export const userService = {
   getRegistrationsByDistrict: async (
     district: string
   ): Promise<UserRegistrationResponse[]> => {
-    return await fetchService({
+    return await fetchService<UserRegistrationResponse[]>({
       method: "GET",
       endpoint: `/user/register/district/${district}`,
+      schema: userRegistrationResponseArraySchema
     });
   },
 
@@ -129,9 +127,10 @@ export const userService = {
   getRegistrationsByWorkLocation: async (
     location: string
   ): Promise<UserRegistrationResponse[]> => {
-    return await fetchService({
+    return await fetchService<UserRegistrationResponse[]>({
       method: "GET",
       endpoint: `/user/register/location/${location}`,
+      schema: userRegistrationResponseArraySchema
     });
   },
 };

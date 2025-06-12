@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SkillConnect.Services.Interfaces;
 using SkillConnect.Dtos;
+using SkillConnect.Exceptions;
 
 namespace SkillConnect.Controllers
 {
@@ -53,15 +54,33 @@ namespace SkillConnect.Controllers
                 Console.WriteLine("Received DTO:");
                 Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(dto));
                 var created = await _jobPostService.CreateAsync(dto);
-                return CreatedAtAction(nameof(Get), new { id = created.Id }, created); // returns JobPostDto
+                return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
+            }
+            catch (ValidationException ex)
+            {
+                var errors = ex.Message.Split('\n');
+                return BadRequest(new { 
+                    title = "Validation Error", 
+                    message = "Please correct the following errors:",
+                    errors = errors
+                });
             }
             catch (CustomException ex)
             {
-                return StatusCode(ex.StatusCode, new { title = ex.Title, message = ex.Message });
+                return StatusCode(ex.StatusCode, new { 
+                    title = ex.Title, 
+                    message = ex.Message,
+                    details = ex.Details
+                });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return StatusCode(500, new { title = "Internal Server Error", message = "An unexpected error occurred." });
+                Console.WriteLine($"Error creating job post: {ex}");
+                return StatusCode(500, new { 
+                    title = "Internal Server Error", 
+                    message = "An unexpected error occurred while creating the job post.",
+                    details = ex.Message
+                });
             }
         }
 
@@ -71,18 +90,40 @@ namespace SkillConnect.Controllers
             try
             {
                 if (id != dto.Id.ToString())
-                    return BadRequest(new { title = "Bad Request", message = "Company ID mismatch." });
+                    return BadRequest(new { 
+                        title = "Bad Request", 
+                        message = "Job post ID mismatch.",
+                        details = "The ID in the URL does not match the ID in the request body."
+                    });
 
                 await _jobPostService.UpdateAsync(dto);
                 return NoContent();
             }
+            catch (ValidationException ex)
+            {
+                var errors = ex.Message.Split('\n');
+                return BadRequest(new { 
+                    title = "Validation Error", 
+                    message = "Please correct the following errors:",
+                    errors = errors
+                });
+            }
             catch (CustomException ex)
             {
-                return StatusCode(ex.StatusCode, new { title = ex.Title, message = ex.Message });
+                return StatusCode(ex.StatusCode, new { 
+                    title = ex.Title, 
+                    message = ex.Message,
+                    details = ex.Details
+                });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { title = "Internal Server Error", message = ex.Message });
+                Console.WriteLine($"Error updating job post: {ex}");
+                return StatusCode(500, new { 
+                    title = "Internal Server Error", 
+                    message = "An unexpected error occurred while updating the job post.",
+                    details = ex.Message
+                });
             }
         }
 
